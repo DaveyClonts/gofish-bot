@@ -46,7 +46,6 @@ card deck[52] = {
     {SPADES, SEVEN}, {SPADES, EIGHT}, {SPADES, NINE}, {SPADES, TEN}, {SPADES, JACK},
     {SPADES, QUEEN}, {SPADES, KING}, {SPADES, ACE}
 };
-//better way to do this might be to make an ID that is H2-HA or what not... idk ill come back to this
 
 void readCard(card card) {
     printf("%s of %s \n", value_names[card.value], suit_names[card.suit]);

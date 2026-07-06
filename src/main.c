@@ -1,10 +1,5 @@
-// Public Headers
-#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
-
-
-// Headers
 #include "deck.h"
 
 int main(void) {
@@ -12,4 +7,5 @@ int main(void) {
 
     shuffleDeck(deck);
     printDeck(deck);
+    return 0;
 }
