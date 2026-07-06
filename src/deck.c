@@ -1,33 +1,6 @@
+#include "deck.h"
 
-enum suits {
-    CLUB,
-    DIAMOND,
-    HEART,
-    SPADES
-};
-
-enum types {
-    TWO,
-    THREE,
-    FOUR,
-    FIVE,
-    SIX,
-    SEVEN,
-    EIGHT,
-    NINE,
-    TEN,
-    JACK,
-    QUEEN,
-    KING,
-    ACE
-};
-
-struct card {
-    enum suits suit;
-    enum types type;
-};
-
-struct card deck[52] = {
+card deck[52] = {
     // CLUB
     {CLUB, TWO}, {CLUB, THREE}, {CLUB, FOUR}, {CLUB, FIVE}, {CLUB, SIX},
     {CLUB, SEVEN}, {CLUB, EIGHT}, {CLUB, NINE}, {CLUB, TEN}, {CLUB, JACK},
