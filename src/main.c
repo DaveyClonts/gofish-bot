@@ -3,6 +3,7 @@
 
 
 // Headers
+#include "deck.h"
 
 // TODO: make file
 // TODO: func that takes the struct and gives its name such as: "Queen of hearts"

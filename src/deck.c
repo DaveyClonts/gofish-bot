@@ -1,6 +1,6 @@
 #include "deck.h"
 
-card deck[52] = {
+const card deck[52] = {
     // CLUB
     {CLUB, TWO}, {CLUB, THREE}, {CLUB, FOUR}, {CLUB, FIVE}, {CLUB, SIX},
     {CLUB, SEVEN}, {CLUB, EIGHT}, {CLUB, NINE}, {CLUB, TEN}, {CLUB, JACK},

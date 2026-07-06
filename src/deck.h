@@ -29,6 +29,6 @@ typedef struct {
     types type;
 } card;
 
-extern card deck[52];
+extern const card deck[52];
 
 #endif
