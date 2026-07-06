@@ -1,5 +1,13 @@
-#include "deck.h"
 #include <stdbool.h>
+#include <stdio.h>
+#include "stack.h"
+#include "deck.h"
+
+// steps to game
+// dealer can be the computer
+// for 2 players 7 cards dealt to each player
+
+
 
 
 // End condition: all thirteen books have been won
@@ -15,13 +23,19 @@
     // is completed
     // owner?
 
-struct book {
-    card cardsInBook[4];
-    bool completed;
-    int ownerID;
-};
+stack_card drawPile; //hopeful this is okay global
 
-struct player {
-    int playerNum;
+void deckToStack(card deck[]) {
+    stackInit(&drawPile);
 
-};
+    for (int i = 0; i < DECK_SIZE; i++) {
+        stackPush(&drawPile, deck[i]);
+    }
+}
+
+void gameInit() {
+    shuffleDeck(deck);
+    deckToStack(deck);
+
+    printf("stack is %d large \n", drawPile.size);
+}

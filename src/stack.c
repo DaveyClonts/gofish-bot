@@ -7,7 +7,7 @@ void stackInit(stack_card *stack) {
 }
 
 bool stackPush(stack_card *stack, card value) {
-    if (stack->size >= 52) {
+    if (stack->size >= DECK_SIZE) {
 
         fprintf(stderr, "Error: stack limit exceeded");
         return false;

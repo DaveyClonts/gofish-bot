@@ -1,11 +1,13 @@
 #include <stdlib.h>
 #include <time.h>
-#include "deck.h"
+#include "game.h"
 
 int main(void) {
     srand(time(NULL)); //random gen for shuffle in deck.c
 
-    shuffleDeck(deck);
-    printDeck(deck);
+    gameInit();
+
+    
+
     return 0;
 }
