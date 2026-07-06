@@ -1,15 +1,15 @@
 // Public Headers
 #include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
 
 
 // Headers
 #include "deck.h"
 
-// TODO: make file
-// TODO: func that takes the struct and gives its name such as: "Queen of hearts"
-// TODO: test by logging all cards by name using func
-
 int main(void) {
-    printf("This is the start of some serious go fishin \n");
-    return 0;
+    srand(time(NULL)); //random gen for shuffle in deck.c
+
+    shuffleDeck(deck);
+    printDeck(deck);
 }

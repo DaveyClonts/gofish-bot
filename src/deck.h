@@ -1,5 +1,6 @@
 #ifndef DECK_H
 #define DECK_H
+#define DECK_SIZE 52
 
 typedef enum {
     CLUB,
@@ -22,13 +23,19 @@ typedef enum {
     QUEEN,
     KING,
     ACE
-} types;
+} values;
 
 typedef struct {
     suits suit;
-    types type;
+    values value;
 } card;
 
-extern const card deck[52];
+extern card deck[52];
+
+void readCard(card card);
+
+void printDeck(card deck[]);
+
+void shuffleDeck(card deck[]);
 
 #endif
