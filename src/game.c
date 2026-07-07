@@ -37,6 +37,10 @@ void gameInit() {
     deckToStack(deck);
 }
 
+void drawCard() {
+    
+}
+
 void game() {
     gameInit();
 

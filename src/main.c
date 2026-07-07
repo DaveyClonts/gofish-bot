@@ -3,10 +3,15 @@
 #include <time.h>
 #include "game.h"
 
+void clearScreen() {
+    printf("\e[1;1H\e[2J"); //black magic
+    fflush(stdout);
+}
+
 int main(void) {
     srand(time(NULL)); //random gen for shuffle in deck.c
 
-    gameInit();
+    clearScreen();
 
     puts(
         " ,----.                 ,------.,--.       ,--. \n"
