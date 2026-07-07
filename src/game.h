@@ -25,6 +25,4 @@ void drawCard(stack_card *drawPile, player *player);
 
 void gameInit();
 
-void game();
-
 #endif

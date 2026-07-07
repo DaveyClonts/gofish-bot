@@ -1,32 +1,16 @@
 #include <stdlib.h>
-#include <stdio.h>
 #include <time.h>
 #include "game.h"
+#include "tui.h"
 
-void clearScreen() {
-    printf("\e[1;1H\e[2J"); //black magic
-    fflush(stdout);
-}
 
 int main(void) {
     srand(time(NULL)); //random gen for shuffle in deck.c
 
     clearScreen();
+    startScreen();
 
-    puts(
-        " ,----.                 ,------.,--.       ,--. \n"
-        "'  .-./    ,---. ,-----.|  .---'`--' ,---. |  ,---.\n"
-        "|  | .---.| .-. |'-----'|  `--, ,--.(  .-' |  .-.  | \n"
-        "'  '--'  |' '-' '       |  |`   |  |.-'  `)|  | |  | \n"
-        " `------'  `---'        `--'    `--'`----' `--' `--' \n"
-    );
-
-    printf("\n\n\nReady to Play?\n");
-    printf("Press any key to start...");
-
-    getchar();
-
-    game();
+    gameInit();
 
     return 0;
 }
