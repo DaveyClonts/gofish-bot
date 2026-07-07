@@ -55,16 +55,23 @@ void gameInit() {
         drawCard(&drawPile, &player1);
         drawCard(&drawPile, &player2);
 
-        printf("Player 1's hand: \n");
-        
-        for(int i = 0; i < player1.handSize; i++) {
-            readCard(player1.hand[i]);
-        }
+        // test
+        // printf("Player 1's hand: \n");
+        // for(int i = 0; i < player1.handSize; i++) {
+        //     readCard(player1.hand[i]);
+        // }
+        // printf("\n");
 
-        printf("\n");
+        // printf("Player 2's hand: \n");
+        // for(int i = 0; i < player2.handSize; i++) {
+        //     readCard(player2.hand[i]);
+        // }
+        // printf("\n");
+
+        // printf("Size of draw pile: \n");
+        // printf("%d \n", drawPile.size);
+        // printf("----------------- \n");
     }
-
-
 }
 
 
