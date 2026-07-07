@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <time.h>
 #include "game.h"
 
@@ -7,7 +8,18 @@ int main(void) {
 
     gameInit();
 
-    
+    puts(
+        " ,----.                 ,------.,--.       ,--. \n"
+        "'  .-./    ,---. ,-----.|  .---'`--' ,---. |  ,---.\n"
+        "|  | .---.| .-. |'-----'|  `--, ,--.(  .-' |  .-.  | \n"
+        "'  '--'  |' '-' '       |  |`   |  |.-'  `)|  | |  | \n"
+        " `------'  `---'        `--'    `--'`----' `--' `--' \n"
+    );
+
+    printf("\n\n\nReady to Play?\n");
+    printf("Press any key to start...");
+
+    getchar();
 
     return 0;
 }

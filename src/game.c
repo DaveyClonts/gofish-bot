@@ -1,5 +1,4 @@
 #include <stdbool.h>
-#include <stdio.h>
 #include "stack.h"
 #include "deck.h"
 
@@ -36,6 +35,10 @@ void deckToStack(card deck[]) {
 void gameInit() {
     shuffleDeck(deck);
     deckToStack(deck);
+}
 
-    printf("stack is %d large \n", drawPile.size);
+void game() {
+    gameInit();
+
+
 }
