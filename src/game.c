@@ -1,3 +1,4 @@
+#include "game.h"
 #include <stdbool.h>
 #include "stack.h"
 #include "deck.h"
@@ -13,15 +14,6 @@
 // Books can belong to a player
 // Players: 1 human 1 bot (for now)
 
-// Define a player
-    // has an id
-    // has a hand
-    // has won books
-// Define a book
-    // has cards
-    // is completed
-    // owner?
-
 stack_card drawPile; //hopeful this is okay global
 
 void deckToStack(card deck[]) {
@@ -35,10 +27,13 @@ void deckToStack(card deck[]) {
 void gameInit() {
     shuffleDeck(deck);
     deckToStack(deck);
+
+    player player1;
+    player player2;
 }
 
 void drawCard() {
-    
+
 }
 
 void game() {
