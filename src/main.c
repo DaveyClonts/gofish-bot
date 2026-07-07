@@ -26,5 +26,7 @@ int main(void) {
 
     getchar();
 
+    game();
+
     return 0;
 }
