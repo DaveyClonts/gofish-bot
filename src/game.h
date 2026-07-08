@@ -24,7 +24,7 @@ typedef struct {
 
 void deckToStack(card deck[]);
 
-void playerInit(game_state *game);
+void playersInit(game_state *game);
 
 void drawCard(game_state *game, int playerId);
 

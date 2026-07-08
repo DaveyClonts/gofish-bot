@@ -84,7 +84,7 @@ void gameInit() {
     shuffleDeck(deck); //TODO: ask chat about better way to do global deck
     deckToStack(deck);
 
-    playerInit(&g_game);
+    playersInit(&g_game);
 
     for (int i = 0; i < G_STARTING_HAND_SIZE; i++) {
         drawCard(&g_game, 0);
