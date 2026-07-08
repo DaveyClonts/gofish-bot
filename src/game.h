@@ -14,22 +14,24 @@ typedef struct {
     int playerNum;
     card *hand;
     int handSize;
-    int handMemoryAllocated;
+    int capacity;
 } player;
 
 typedef struct {
     stack_card drawPile;
     player players[6];
-} game;
+} game_state;
 
 void deckToStack(card deck[]);
 
-void playerInit(int playerNum, player *player);
+void playerInit(game_state *game);
 
-void drawCard(stack_card *drawPile, player *player);
+void drawCard(game_state *game, int playerId);
 
 void gameInit();
 
-void runGame();
+void gameplayLoop();
+
+void startGame();
 
 #endif

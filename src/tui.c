@@ -1,11 +1,11 @@
 #include <stdio.h>
 
-void clearScreen() {
+void tui_clearScreen() {
     printf("\e[1;1H\e[2J"); //black magic
     fflush(stdout);
 }
 
-void startScreen() {
+void tui_startScreen() {
     puts(
         " ,----.                 ,------.,--.       ,--. \n"
         "'  .-./    ,---. ,-----.|  .---'`--' ,---. |  ,---.\n"
@@ -20,7 +20,7 @@ void startScreen() {
     getchar();
 }
 
-void displayHands() {
+void tui_displayHands() {
     printf("\n\n\n\n\n");
 
     printf("Opponent's Hand: ");

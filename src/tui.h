@@ -1,10 +1,10 @@
 #ifndef TUI_H
 #define TUI_H
 
-void clearScreen();
+void tui_clearScreen();
 
-void startScreen();
+void tui_startScreen();
 
-void displayHands();
+void tui_displayHands();
 
 #endif
