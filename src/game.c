@@ -1,5 +1,6 @@
 #include "game.h"
 #include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include "stack.h"
 #include "deck.h"
@@ -18,15 +19,15 @@ const int G_PLAYER_COUNT = 2; //eventually will be mutable as a field of game_st
 
 game_state g_game;
 
-void deckToStack(card deck[]) {
-    stackInit(&g_game.drawPile);
+void deckToStack(game_state *game, card deck[]) {
+    stackInit(&game->drawPile);
 
     for (int i = 0; i < DECK_SIZE; i++) {
-        stackPush(&g_game.drawPile, deck[i]);
+        stackPush(&game->drawPile, deck[i]);
     }
 }
 
-void playerInit(game_state *game) {
+void playersInit(game_state *game) {
     for(int i = 0; i < G_PLAYER_COUNT; i++) {
         game->players[i].playerNum = i;
         game->players[i].handSize = 0;
@@ -36,53 +37,46 @@ void playerInit(game_state *game) {
     }
 }
 
-// void drawCard(stack_card *drawPile, player *player) {
-
-//     if(player->handSize >= player->capacity) {
-//         player->capacity *= 2;
-//         player->hand = realloc(player->hand, player->capacity * sizeof(card));
-//     }
-
-//     stackPop(drawPile, &player->hand[player->handSize++]);
-// }
-
-// void drawCard(game_state *game, int playerId) {
-//     if(game->players[playerId].handSize >= game->players[playerId].capacity) {
-//         game->players[playerId].capacity *= 2;
-//         game->players[playerId].hand = realloc(game->players[playerId].hand, game->players[playerId].capacity * sizeof(card));
-//     }
-
-//     if(
-//         stackPop(
-//             &game->drawPile,
-//             &game->players[playerId].hand[game->players[playerId].handSize] //sorry
-//         )
-//     ) {
-//         game->players[playerId].handSize++;
-//     }
-
-// }
+void checkHandCapacity(player *player) {
+    if (player->handSize >= player->capacity) {
+        player->capacity *= 2;
+        player->hand = realloc(player->hand,player->capacity * sizeof(card));
+    }
+}
 
 void drawCard(game_state *game, int playerId) {
     player *currentPlayer = &game->players[playerId];
 
-    if (currentPlayer->handSize >= currentPlayer->capacity) {
-        currentPlayer->capacity *= 2;
-        currentPlayer->hand = realloc(
-            currentPlayer->hand,
-            currentPlayer->capacity * sizeof(card)
-        );
-    }
+    checkHandCapacity(currentPlayer);
 
     if (stackPop(&game->drawPile,&currentPlayer->hand[currentPlayer->handSize])) {
         currentPlayer->handSize++;
     }
 }
 
+void giveCard(game_state *game, int giverId, int recieverId, int cardIndex) {
+    player *giver = &game->players[giverId];
+    player *reciever = &game->players[recieverId];
+    if (giver->handSize <= 0) {
+        fprintf(stderr, "Error: giver's hand is empty");
+        exit(EXIT_FAILURE);
+    }
+
+    //shifts cards left and reduces handSize
+    card passingCard = giver->hand[cardIndex];
+    for (int i = cardIndex; i < giver->handSize - 1; i++) {
+        giver->hand[i] = giver->hand[i + 1];
+    }
+    giver->handSize--;
+
+    checkHandCapacity(reciever);
+    reciever->hand[reciever->handSize] = passingCard;
+    reciever->handSize++;
+}
 
 void gameInit() {
-    shuffleDeck(deck); //TODO: ask chat about better way to do global deck
-    deckToStack(deck);
+    shuffleDeck(g_deck);
+    deckToStack(&g_game, g_deck);
 
     playersInit(&g_game);
 

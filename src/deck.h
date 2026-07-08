@@ -30,7 +30,7 @@ typedef struct {
     values value;
 } card;
 
-extern card deck[52];
+extern card g_deck[52];
 
 void readCard(card card);
 

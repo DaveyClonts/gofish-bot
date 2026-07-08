@@ -3,6 +3,7 @@
 #include "deck.h"
 #include "stack.h"
 #include <stddef.h>
+#include <stdbool.h>
 
 typedef struct {
     card cardsInBook[4];
@@ -22,11 +23,15 @@ typedef struct {
     player players[6];
 } game_state;
 
-void deckToStack(card deck[]);
+void deckToStack(game_state *game, card deck[]);
 
 void playersInit(game_state *game);
 
+void checkHandCapacity(player *player);
+
 void drawCard(game_state *game, int playerId);
+
+void giveCard(game_state *game, int giverId, int recieverId, int cardIndex);
 
 void gameInit();
 

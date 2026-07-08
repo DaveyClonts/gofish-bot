@@ -7,12 +7,12 @@
 int main(void) {
     srand(time(NULL)); //random gen for shuffle in deck.c
 
-    clearScreen();
-    startScreen();
+    tui_clearScreen();
+    tui_startScreen();
 
     gameInit();
 
-    runGame();
+    startGame();
 
     return 0;
 }
