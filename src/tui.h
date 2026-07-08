@@ -5,4 +5,6 @@ void clearScreen();
 
 void startScreen();
 
+void displayHands();
+
 #endif

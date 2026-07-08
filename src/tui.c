@@ -19,3 +19,11 @@ void startScreen() {
 
     getchar();
 }
+
+void displayHands() {
+    printf("\n\n\n\n\n");
+
+    printf("Opponent's Hand: ");
+
+    
+}

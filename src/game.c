@@ -1,9 +1,9 @@
 #include "game.h"
 #include <stdbool.h>
-#include <stdio.h>
 #include <stdlib.h>
 #include "stack.h"
 #include "deck.h"
+#include "tui.h"
 
 // steps to game
 // dealer can be the computer
@@ -14,7 +14,11 @@
 // Players: 1 human 1 bot (for now)
 
 stack_card drawPile; //hopeful this is okay global
+player player1;
+player player2;
 const int STARTING_HAND_SIZE = 7;
+
+game gameState;
 
 void deckToStack(card deck[]) {
     stackInit(&drawPile);
@@ -45,9 +49,6 @@ void gameInit() {
     shuffleDeck(deck);
     deckToStack(deck);
 
-    player player1;
-    player player2;
-
     playerInit(1, &player1);
     playerInit(2, &player2);
 
@@ -72,4 +73,8 @@ void gameInit() {
         // printf("%d \n", drawPile.size);
         // printf("----------------- \n");
     }
+}
+
+void runGame() {
+    displayHands();
 }

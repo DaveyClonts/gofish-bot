@@ -17,6 +17,11 @@ typedef struct {
     int handMemoryAllocated;
 } player;
 
+typedef struct {
+    stack_card drawPile;
+    player players[6];
+} game;
+
 void deckToStack(card deck[]);
 
 void playerInit(int playerNum, player *player);
@@ -24,5 +29,7 @@ void playerInit(int playerNum, player *player);
 void drawCard(stack_card *drawPile, player *player);
 
 void gameInit();
+
+void runGame();
 
 #endif

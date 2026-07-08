@@ -12,5 +12,7 @@ int main(void) {
 
     gameInit();
 
+    runGame();
+
     return 0;
 }

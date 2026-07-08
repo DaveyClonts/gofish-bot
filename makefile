@@ -10,7 +10,7 @@ build/main.o: src/main.c src/game.h src/deck.h src/stack.h src/tui.h
 build/deck.o: src/deck.c src/deck.h
 	$(CC) $(CFLAGS) -c src/deck.c -o build/deck.o
 
-build/game.o: src/game.c src/game.h src/deck.h src/stack.h
+build/game.o: src/game.c src/game.h src/deck.h src/stack.h src/tui.h
 	$(CC) $(CFLAGS) -c src/game.c -o build/game.o
 
 build/stack.o: src/stack.c src/stack.h src/deck.h
