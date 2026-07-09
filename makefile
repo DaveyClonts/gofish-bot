@@ -1,26 +1,35 @@
 CC = gcc
 CFLAGS = -Wall -Wextra
 
-bin/gofish: build/main.o build/deck.o build/game.o build/stack.o build/bot.o build/tui.o
-	$(CC) build/main.o build/deck.o build/game.o build/stack.o build/bot.o build/tui.o -o bin/gofish
+SRC_DIR := src
+BUILD_DIR := build
+BIN_DIR := bin
 
-build/main.o: src/main.c src/game.h src/deck.h src/stack.h src/tui.h
-	$(CC) $(CFLAGS) -c src/main.c -o build/main.o
+TARGET := $(BIN_DIR)/gofish
 
-build/deck.o: src/deck.c src/deck.h
-	$(CC) $(CFLAGS) -c src/deck.c -o build/deck.o
+SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
+OBJS_FILES := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
+DEP_FILES := $(OBJS_FILES:.o=.d)
 
-build/game.o: src/game.c src/game.h src/deck.h src/stack.h src/tui.h
-	$(CC) $(CFLAGS) -c src/game.c -o build/game.o
+.PHONY: all clean
 
-build/stack.o: src/stack.c src/stack.h src/deck.h
-	$(CC) $(CFLAGS) -c src/stack.c -o build/stack.o
+all: $(TARGET)
 
-build/tui.o: src/tui.c
-	$(CC) $(CFLAGS) -c src/tui.c -o build/tui.o
+# builds executable by building all object files
+$(TARGET): $(OBJS_FILES) | $(BIN_DIR)
+	$(CC) $(OBJS_FILES) -o $@
 
-build/bot.o: src/bot.c
-	$(CC) $(CFLAGS) -c src/bot.c -o build/bot.o
+# builds .o from .c
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
+
+# apparently makes dir if not found
+$(BUILD_DIR) $(BIN_DIR):
+	mkdir -p $@
 
 clean:
-	rm -f build/*.o bin/gofish
+	rm -rf $(BUILD_DIR) $(TARGET)
+
+rebuild: clean all
+
+-include $(DEP_FILES)

@@ -9,7 +9,6 @@
 // End condition: all thirteen books have been won
 
 const int G_STARTING_HAND_SIZE = 7;
-const int G_PLAYER_COUNT = 2; //eventually will be mutable as a field of game_state struct
 
 game_state g_game;
 
@@ -22,7 +21,7 @@ void deckToStack(game_state *game, card deck[]) {
 }
 
 void playersInit(game_state *game) {
-    for(int i = 0; i < G_PLAYER_COUNT; i++) {
+    for(int i = 0; i < game->playerCount; i++) {
         game->players[i].playerNum = i;
         game->players[i].handSize = 0;
         game->players[i].capacity = G_STARTING_HAND_SIZE;
@@ -86,6 +85,7 @@ void transferBookCards(game_state *game, player *player, values bookValue) {
     book newBook;
     newBook.bookSize = 0;
     newBook.ownerId = player->playerNum;
+    newBook.bookValue = bookValue;
 
     for (int i = player->handSize - 1; i >= 0; i--) {
         if (player->hand[i].value == bookValue) {
@@ -117,20 +117,30 @@ void checkHandForBook(game_state *game, player *player) {
 }
 
 void checkPlayersForBook(game_state *game) {
-    for (int i = 0; i < G_PLAYER_COUNT; i++) {
+    for (int i = 0; i < game->playerCount; i++) {
         checkHandForBook(game,&game->players[i]);
+    }
+}
+
+void findBooksForPlayer(game_state *game, int playerId) {
+    for (int i = 0; i < game->sizeOfBooks; i++) {
+        if (game->books[i].ownerId == playerId) {
+
+        }
     }
 }
 
 //TODO: func for organizing hands by like value cards
 
 void gameInit() {
+    g_game.sizeOfBooks = 0;
+    g_game.winCondition.hasWon = false;
+    g_game.playerCount = 2;
+
     shuffleDeck(g_deck);
     deckToStack(&g_game, g_deck);
 
     playersInit(&g_game);
-    g_game.sizeOfBooks = 0;
-    g_game.winCondition.hasWon = false;
 
     for (int i = 0; i < G_STARTING_HAND_SIZE; i++) {
         drawCard(&g_game, 0);
@@ -140,10 +150,16 @@ void gameInit() {
 
 void gameplayLoop(game_state *game) {
     while(!game->winCondition.hasWon) {
-
+        tui_clearScreen();
+        tui_displayHands(game);
     }
 }
 
 void startGame() {
-    tui_displayHands();
+    tui_clearScreen();
+    tui_startScreen();
+
+    tui_displayHands(&g_game);
+
+    //gameplayLoop(&g_game);
 }

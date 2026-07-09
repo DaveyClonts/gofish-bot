@@ -10,6 +10,7 @@ typedef struct {
     int bookSize;
     bool completed;
     int ownerId;
+    values bookValue;
 } book;
 
 typedef struct {
@@ -21,13 +22,14 @@ typedef struct {
 
 typedef struct {
     bool hasWon;
-    player winner;
+    int winnerId;
 } win;
 
 typedef struct {
     win winCondition;
     stack_card drawPile;
     player players[6];
+    int playerCount;
     book books[13];
     int sizeOfBooks;
 } game_state;
