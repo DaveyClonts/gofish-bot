@@ -93,8 +93,6 @@ void transferBookCards(game_state *game, player *player, values bookValue) {
         }
     }
     newBook.completed = true;
-
-
     if(game->sizeOfBooks >= 13) {
         fprintf(stderr, "Error: exceeding max number of books");
         exit(EXIT_FAILURE);
@@ -142,7 +140,7 @@ void gameInit() {
 
 void gameplayLoop(game_state *game) {
     while(!game->winCondition.hasWon) {
-        
+
     }
 }
 
