@@ -6,13 +6,7 @@
 #include "deck.h"
 #include "tui.h"
 
-// steps to game
-// dealer can be the computer
-// for 2 players 7 cards dealt to each player
-
 // End condition: all thirteen books have been won
-// Books can belong to a player
-// Players: 1 human 1 bot (for now)
 
 const int G_STARTING_HAND_SIZE = 7;
 const int G_PLAYER_COUNT = 2; //eventually will be mutable as a field of game_state struct
@@ -78,29 +72,35 @@ void giveCardToBook(game_state *game, book *book, int giverId, int cardIndex) {
     player *giver = &game->players[giverId];
 
     card passingCard = giver->hand[cardIndex];
+
+    for (int i = cardIndex; i < giver->handSize - 1; i++) {
+        giver->hand[i] = giver->hand[i + 1];
+    }
+
     giver->handSize--;
     book->cardsInBook[book->bookSize] = passingCard;
     book->bookSize++;
 }
 
-void giveBookToGame(game_state *game, book passingBook) {
-    &game->books[game->sizeOfBooks] = passingBook;
-    &game->sizeOfBooks++;
-}
-
-//TODO: func for organizing hand by putting like values together
-
-void transferBookCards(game_state *game, player *player, int bookValue) {
+void transferBookCards(game_state *game, player *player, values bookValue) {
     book newBook;
     newBook.bookSize = 0;
     newBook.ownerId = player->playerNum;
 
-    for (int i = 0; i < player->handSize; i++) {
+    for (int i = player->handSize - 1; i >= 0; i--) {
         if (player->hand[i].value == bookValue) {
             giveCardToBook(game, &newBook, player->playerNum, i);
         }
-        //giveBookToGame()
     }
+    newBook.completed = true;
+
+
+    if(game->sizeOfBooks >= 13) {
+        fprintf(stderr, "Error: exceeding max number of books");
+        exit(EXIT_FAILURE);
+    }
+    game->books[game->sizeOfBooks] = newBook;
+    game->sizeOfBooks++;
 }
 
 void checkHandForBook(game_state *game, player *player) {
@@ -112,16 +112,19 @@ void checkHandForBook(game_state *game, player *player) {
         
 
         if (possibleValues[player->hand[i].value] == 4) {
-            //transferBookCards();
+            transferBookCards(game, player, player->hand[i].value);
+            return;
         }
     }
 }
 
 void checkPlayersForBook(game_state *game) {
     for (int i = 0; i < G_PLAYER_COUNT; i++) {
-        checkHandForBook(&game->players[i]);
+        checkHandForBook(game,&game->players[i]);
     }
 }
+
+//TODO: func for organizing hands by like value cards
 
 void gameInit() {
     shuffleDeck(g_deck);
@@ -129,33 +132,17 @@ void gameInit() {
 
     playersInit(&g_game);
     g_game.sizeOfBooks = 0;
+    g_game.winCondition.hasWon = false;
 
     for (int i = 0; i < G_STARTING_HAND_SIZE; i++) {
         drawCard(&g_game, 0);
         drawCard(&g_game, 1);
-
-        // TEST
-        // printf("Player 1's hand: \n");
-        // for(int i = 0; i < player1.handSize; i++) {
-        //     readCard(player1.hand[i]);
-        // }
-        // printf("\n");
-
-        // printf("Player 2's hand: \n");
-        // for(int i = 0; i < player2.handSize; i++) {
-        //     readCard(player2.hand[i]);
-        // }
-        // printf("\n");
-
-        // printf("Size of draw pile: \n");
-        // printf("%d \n", drawPile.size);
-        // printf("----------------- \n");
     }
 }
 
 void gameplayLoop(game_state *game) {
     while(!game->winCondition.hasWon) {
-
+        
     }
 }
 
