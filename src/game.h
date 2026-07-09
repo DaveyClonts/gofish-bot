@@ -7,8 +7,9 @@
 
 typedef struct {
     card cardsInBook[4];
+    int bookSize;
     bool completed;
-    int ownerID;
+    int ownerId;
 } book;
 
 typedef struct {
@@ -19,8 +20,16 @@ typedef struct {
 } player;
 
 typedef struct {
+    bool hasWon;
+    player winner;
+} win;
+
+typedef struct {
+    win winCondition;
     stack_card drawPile;
     player players[6];
+    book books[13];
+    int sizeOfBooks;
 } game_state;
 
 void deckToStack(game_state *game, card deck[]);
@@ -31,11 +40,13 @@ void checkHandCapacity(player *player);
 
 void drawCard(game_state *game, int playerId);
 
-void giveCard(game_state *game, int giverId, int recieverId, int cardIndex);
+void giveCardToPlayer(game_state *game, int giverId, int recieverId, int cardIndex);
+
+void giveCardsToBook(game_state *game, int giverId);
 
 void gameInit();
 
-void gameplayLoop();
+void gameplayLoop(game_state *game);
 
 void startGame();
 

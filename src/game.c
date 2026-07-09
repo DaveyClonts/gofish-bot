@@ -54,7 +54,7 @@ void drawCard(game_state *game, int playerId) {
     }
 }
 
-void giveCard(game_state *game, int giverId, int recieverId, int cardIndex) {
+void giveCardToPlayer(game_state *game, int giverId, int recieverId, int cardIndex) {
     player *giver = &game->players[giverId];
     player *reciever = &game->players[recieverId];
     if (giver->handSize <= 0) {
@@ -74,11 +74,61 @@ void giveCard(game_state *game, int giverId, int recieverId, int cardIndex) {
     reciever->handSize++;
 }
 
+void giveCardToBook(game_state *game, book *book, int giverId, int cardIndex) {
+    player *giver = &game->players[giverId];
+
+    card passingCard = giver->hand[cardIndex];
+    giver->handSize--;
+    book->cardsInBook[book->bookSize] = passingCard;
+    book->bookSize++;
+}
+
+void giveBookToGame(game_state *game, book passingBook) {
+    &game->books[game->sizeOfBooks] = passingBook;
+    &game->sizeOfBooks++;
+}
+
+//TODO: func for organizing hand by putting like values together
+
+void transferBookCards(game_state *game, player *player, int bookValue) {
+    book newBook;
+    newBook.bookSize = 0;
+    newBook.ownerId = player->playerNum;
+
+    for (int i = 0; i < player->handSize; i++) {
+        if (player->hand[i].value == bookValue) {
+            giveCardToBook(game, &newBook, player->playerNum, i);
+        }
+        //giveBookToGame()
+    }
+}
+
+void checkHandForBook(game_state *game, player *player) {
+
+    int possibleValues[13] = {0};
+
+    for (int i = 0; i < player->handSize; i++) {
+        possibleValues[player->hand[i].value]++;
+        
+
+        if (possibleValues[player->hand[i].value] == 4) {
+            //transferBookCards();
+        }
+    }
+}
+
+void checkPlayersForBook(game_state *game) {
+    for (int i = 0; i < G_PLAYER_COUNT; i++) {
+        checkHandForBook(&game->players[i]);
+    }
+}
+
 void gameInit() {
     shuffleDeck(g_deck);
     deckToStack(&g_game, g_deck);
 
     playersInit(&g_game);
+    g_game.sizeOfBooks = 0;
 
     for (int i = 0; i < G_STARTING_HAND_SIZE; i++) {
         drawCard(&g_game, 0);
@@ -103,8 +153,10 @@ void gameInit() {
     }
 }
 
-void gameplayLoop() {
+void gameplayLoop(game_state *game) {
+    while(!game->winCondition.hasWon) {
 
+    }
 }
 
 void startGame() {
