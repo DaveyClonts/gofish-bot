@@ -11,7 +11,7 @@ SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
 OBJS_FILES := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
 DEP_FILES := $(OBJS_FILES:.o=.d)
 
-.PHONY: all clean
+.PHONY: all clean rebuild run stats
 
 all: $(TARGET)
 
@@ -31,5 +31,11 @@ clean:
 	rm -rf $(BUILD_DIR) $(TARGET)
 
 rebuild: clean all
+
+run: $(TARGET)
+	./$(TARGET)
+
+stats:
+	sh scripts/update_readme_stats.sh
 
 -include $(DEP_FILES)
