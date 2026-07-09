@@ -12,7 +12,7 @@ const int G_STARTING_HAND_SIZE = 7;
 
 game_state g_game;
 
-void deckToStack(game_state *game, card deck[]) {
+static void deckToStack(game_state *game, card deck[]) {
     stackInit(&game->drawPile);
 
     for (int i = 0; i < DECK_SIZE; i++) {
@@ -20,7 +20,7 @@ void deckToStack(game_state *game, card deck[]) {
     }
 }
 
-void playersInit(game_state *game) {
+static void playersInit(game_state *game) {
     for(int i = 0; i < game->playerCount; i++) {
         game->players[i].playerNum = i;
         game->players[i].handSize = 0;
@@ -30,14 +30,14 @@ void playersInit(game_state *game) {
     }
 }
 
-void checkHandCapacity(player *player) {
+static void checkHandCapacity(player *player) {
     if (player->handSize >= player->capacity) {
         player->capacity *= 2;
         player->hand = realloc(player->hand,player->capacity * sizeof(card));
     }
 }
 
-void drawCard(game_state *game, int playerId) {
+static void drawCard(game_state *game, int playerId) {
     player *currentPlayer = &game->players[playerId];
 
     checkHandCapacity(currentPlayer);
@@ -47,7 +47,7 @@ void drawCard(game_state *game, int playerId) {
     }
 }
 
-void giveCardToPlayer(game_state *game, int giverId, int recieverId, int cardIndex) {
+static void giveCardToPlayer(game_state *game, int giverId, int recieverId, int cardIndex) {
     player *giver = &game->players[giverId];
     player *reciever = &game->players[recieverId];
     if (giver->handSize <= 0) {
@@ -67,7 +67,7 @@ void giveCardToPlayer(game_state *game, int giverId, int recieverId, int cardInd
     reciever->handSize++;
 }
 
-void giveCardToBook(game_state *game, book *book, int giverId, int cardIndex) {
+static void giveCardToBook(game_state *game, book *book, int giverId, int cardIndex) {
     player *giver = &game->players[giverId];
 
     card passingCard = giver->hand[cardIndex];
@@ -81,7 +81,7 @@ void giveCardToBook(game_state *game, book *book, int giverId, int cardIndex) {
     book->bookSize++;
 }
 
-void transferBookCards(game_state *game, player *player, values bookValue) {
+static void transferBookCards(game_state *game, player *player, values bookValue) {
     book newBook;
     newBook.bookSize = 0;
     newBook.ownerId = player->playerNum;
@@ -101,7 +101,7 @@ void transferBookCards(game_state *game, player *player, values bookValue) {
     game->sizeOfBooks++;
 }
 
-void checkHandForBook(game_state *game, player *player) {
+static void checkHandForBook(game_state *game, player *player) {
 
     int possibleValues[13] = {0};
 
@@ -116,17 +116,9 @@ void checkHandForBook(game_state *game, player *player) {
     }
 }
 
-void checkPlayersForBook(game_state *game) {
+static void checkPlayersForBook(game_state *game) {
     for (int i = 0; i < game->playerCount; i++) {
         checkHandForBook(game,&game->players[i]);
-    }
-}
-
-void findBooksForPlayer(game_state *game, int playerId) {
-    for (int i = 0; i < game->sizeOfBooks; i++) {
-        if (game->books[i].ownerId == playerId) {
-
-        }
     }
 }
 
@@ -148,7 +140,7 @@ void gameInit() {
     }
 }
 
-void gameplayLoop(game_state *game) {
+static void gameplayLoop(game_state *game) {
     while(!game->winCondition.hasWon) {
         tui_clearScreen();
         tui_displayHands(game);

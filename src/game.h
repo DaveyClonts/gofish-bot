@@ -34,27 +34,7 @@ typedef struct {
     int sizeOfBooks;
 } game_state;
 
-void deckToStack(game_state *game, card deck[]);
-
-void playersInit(game_state *game);
-
-void checkHandCapacity(player *player);
-
-void drawCard(game_state *game, int playerId);
-
-void giveCardToPlayer(game_state *game, int giverId, int recieverId, int cardIndex);
-
-void giveCardToBook(game_state *game, book *book, int giverId, int cardIndex);
-
-void transferBookCards(game_state *game, player *player, values bookValue);
-
-void checkHandForBook(game_state *game, player *player);
-
-void checkPlayersForBook(game_state *game);
-
 void gameInit();
-
-void gameplayLoop(game_state *game);
 
 void startGame();
 

@@ -6,8 +6,6 @@ void tui_clearScreen();
 
 void tui_startScreen();
 
-void displayWonBookValues(game_state *game, int playerId);
-
 void tui_displayHands(game_state *game);
 
 #endif
