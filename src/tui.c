@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include "deck.h"
 #include "game.h"
 
 //PUBLIC FACING FUNCTIONS PREFIXED WITH tui_
@@ -7,6 +8,12 @@
 void tui_clearScreen() {
     printf("\e[1;1H\e[2J"); //black magic
     fflush(stdout);
+}
+
+void tui_newline(int howMuch) {
+    for (int i = 0; i < howMuch; i++) {
+        printf("\n");
+    }
 }
 
 void tui_startScreen() {
@@ -24,7 +31,7 @@ void tui_startScreen() {
     getchar();
 }
 
-static void displayWonBookValues(game_state *game, int playerId) {
+static void printWonBookValues(game_state *game, int playerId) {
     for (int i = 0; i < game->sizeOfBooks; i++) {
         if (game->books[i].ownerId == playerId) {
             printf(" (%d) ", game->books[i].bookValue);
@@ -33,19 +40,63 @@ static void displayWonBookValues(game_state *game, int playerId) {
     printf("\n");
 }
 
-void tui_displayHands(game_state *game) {
+static void printCardsInHand(player *player, bool hidden) {
+    for(int i = 0; i < player->handSize; i++) {
+        if(hidden){
+            printf(" ## ");
+        } else {
+            char cardShorthand[4];
+            cardToShorthand(player->hand[i], cardShorthand, sizeof(cardShorthand));
+            printf(" %s ", cardShorthand);
+        }
 
-    tui_clearScreen();
+    }
+}
+
+static void displayBooks(game_state *game) {
 
     printf("Game ends when all 13 books are won\n");
     printf("Number of books won: %d\n", game->sizeOfBooks);
 
-    if (game->sizeOfBooks > 0) {
-        for(int i = 0; i < game->playerCount; i++) {
-            printf("Player %d's books: ", game->players[i].playerNum + 1);
-            displayWonBookValues(game, i);
+    for(int i = 0; i < game->playerCount; i++) {
+        printf("Player %d's books: ", game->players[i].playerNum + 1);
+        printWonBookValues(game, i);
+    }
+}
+
+static void displayHands(game_state *game) {
+    //this is just the current way of handling this.
+    //TODO: will need to make this scale with multiple players
+
+    //Find the user and print the opponents hand first
+    int usersId;
+    for(int i = 0; i < game->playerCount; i++) {
+        if(game->players[i].isUser) {
+            usersId = game->players[i].playerNum;
+        } else {
+            printf("Opponent's Hand:");
+            printCardsInHand(&game->players[i], true);
         }
     }
+
+    tui_newline(3);
+
+    printf("Cards in Stack: %d", game->drawPile.size);
+
+    tui_newline(3);
+
+    printf("Your Hand:");
+    printCardsInHand(&game->players[usersId], false);
+    tui_newline(1);
+}
+
+void tui_displayTurn(game_state *game) {
+    tui_clearScreen();
+
+    displayBooks(game);
+    tui_newline(3);
+    displayHands(game);
+
 }
 
 //new way to organize this... 

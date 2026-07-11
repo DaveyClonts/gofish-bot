@@ -1,4 +1,5 @@
 #include "deck.h"
+#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -7,6 +8,13 @@ const char *suit_names[] = {
     "Diamonds",
     "Hearts",
     "Spades"
+};
+
+const char *suit_shorthand[] = {
+    "C",
+    "D",
+    "H",
+    "S"
 };
 
 const char *value_names[] = {
@@ -23,6 +31,22 @@ const char *value_names[] = {
     "Queen",
     "King",
     "Ace"
+};
+
+const char *value_shorthand[] = {
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "J",
+    "Q",
+    "K",
+    "A"
 };
 
 card g_deck[52] = {
@@ -46,6 +70,17 @@ card g_deck[52] = {
     {SPADES, SEVEN}, {SPADES, EIGHT}, {SPADES, NINE}, {SPADES, TEN}, {SPADES, JACK},
     {SPADES, QUEEN}, {SPADES, KING}, {SPADES, ACE}
 };
+
+
+void cardToShorthand(card card, char output[], size_t size) {
+    snprintf(
+        output,
+        size,
+        "%s%s",
+        value_shorthand[card.value],
+        suit_shorthand[card.suit]
+    );
+}
 
 void readCard(card card) {
     printf("%s of %s \n", value_names[card.value], suit_names[card.suit]);

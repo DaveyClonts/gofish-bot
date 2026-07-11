@@ -18,6 +18,7 @@ typedef struct {
     card *hand;
     int handSize;
     int capacity;
+    bool isUser;
 } player;
 
 typedef struct {

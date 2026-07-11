@@ -7,6 +7,7 @@
 #include "tui.h"
 
 // End condition: all thirteen books have been won
+// Worried that this file needs to be abstracted into player, books and what not
 
 const int G_STARTING_HAND_SIZE = 7;
 
@@ -28,6 +29,7 @@ static void playersInit(game_state *game) {
         game->players[i].hand = malloc(game->players[i].capacity * sizeof(card));
         //potential for error handling and asserts on capacity
     }
+    game->players[0].isUser = true; //forced for now
 }
 
 static void checkHandCapacity(player *player) {
@@ -116,6 +118,7 @@ static void checkHandForBook(game_state *game, player *player) {
     }
 }
 
+//unused? eventually goes in gameplay loop
 static void checkPlayersForBook(game_state *game) {
     for (int i = 0; i < game->playerCount; i++) {
         checkHandForBook(game,&game->players[i]);
@@ -143,7 +146,7 @@ void gameInit() {
 static void gameplayLoop(game_state *game) {
     while(!game->winCondition.hasWon) {
         tui_clearScreen();
-        tui_displayHands(game);
+        tui_displayTurn(game);
     }
 }
 
@@ -151,7 +154,7 @@ void startGame() {
     tui_clearScreen();
     tui_startScreen();
 
-    tui_displayHands(&g_game);
+    tui_displayTurn(&g_game);
 
     //gameplayLoop(&g_game);
 }

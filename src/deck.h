@@ -1,5 +1,6 @@
 #ifndef DECK_H
 #define DECK_H
+#include <stddef.h>
 #define DECK_SIZE 52
 
 typedef enum {
@@ -31,6 +32,8 @@ typedef struct {
 } card;
 
 extern card g_deck[52];
+
+void cardToShorthand(card card, char output[], size_t size);
 
 void readCard(card card);
 

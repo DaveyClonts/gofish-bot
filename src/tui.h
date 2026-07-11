@@ -4,8 +4,10 @@
 
 void tui_clearScreen();
 
+void tui_newline(int howMuch);
+
 void tui_startScreen();
 
-void tui_displayHands(game_state *game);
+void tui_displayTurn(game_state *game);
 
 #endif
