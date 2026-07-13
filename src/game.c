@@ -147,6 +147,34 @@ static void gameplayLoop(game_state *game) {
     while(!game->winCondition.hasWon) {
         tui_clearScreen();
         tui_displayTurn(game);
+
+        for(int i = 0; i < game->playerCount; i++) {
+            bool gotCard;
+
+            char playerInput[4];
+            tui_askForCard(playerInput, sizeof(playerInput));
+
+            while(gotCard) {
+
+                
+
+                //ask for card
+                //do action
+                //check for win
+                //refresh display
+                //if got card loop back to ask card
+                //else break loop and do next player
+            }
+        }
+
+        //start loop with player id (index)
+        //ask for a card
+        //do action
+        //check for win
+        //refresh display
+        //if got card loop back to ask card
+        //else loop back to start and do next player
+
     }
 }
 
@@ -155,6 +183,9 @@ void startGame() {
     tui_startScreen();
 
     tui_displayTurn(&g_game);
+
+    char playerInput[4];
+    tui_askForCard(playerInput, sizeof(playerInput));
 
     //gameplayLoop(&g_game);
 }

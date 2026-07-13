@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include <ctype.h>
 #include "deck.h"
 #include "game.h"
 
@@ -96,7 +98,83 @@ void tui_displayTurn(game_state *game) {
     displayBooks(game);
     tui_newline(3);
     displayHands(game);
+}
 
+static bool isValidCardInput(const char *cardInput) {
+    size_t length = strlen(cardInput);
+
+    //size validation
+    if (!(length == 2 || length == 3)) {
+        return false;
+    }
+
+    //since suit will always be one character
+    char inputSuit = cardInput[length - 1];
+
+    //suit validation
+    if (!(inputSuit == 'H' || inputSuit == 'D' || inputSuit == 'C' || inputSuit == 'S')) {
+        return false;
+    }
+
+    //if not a 10, else a 10
+    if (length == 2) {
+        char inputValue = cardInput[0];
+
+        if (
+            (inputValue >= '2' && inputValue <= '9') 
+            || inputValue == 'J'
+            || inputValue == 'Q'
+            || inputValue == 'K'
+            || inputValue == 'A'
+        ) {
+            return false;
+        }
+    } else {
+        if(cardInput[0] == '1' && cardInput[1] == '0') {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+void tui_askForCard(char *playerInput, size_t playerInputSize) {
+    
+    printf("Ask for card: ");
+
+    while(true) {
+        //handles basic fgets validation, and returns empty string if something goes wrong
+        if(fgets(playerInput, playerInputSize, stdin) == NULL) {
+            playerInput[0] = '\0';
+            return;
+        }
+
+        //removes newline from input
+        char *newline = strchr(playerInput, '\n');
+        if (newline != NULL) {
+            *newline = '\0';
+        } else {
+            //input too long
+            //clears for next fgets()
+            int character;
+            while ((character = getchar() != '\n' && character != EOF)) {
+                printf("Input is too long... Please ask for valid card (AC, 10H, 9D, JS etc):\n");
+                continue;
+            }
+        }
+
+        //force input to uppercase
+        for (size_t i = 0; playerInput[i] != '\0'; i++) {
+            playerInput[i] = (char)toupper((unsigned char)playerInput[i]);
+        }
+
+        if(isValidCardInput(playerInput)) {
+            return;
+        }
+    }
+
+
+    
 }
 
 //new way to organize this... 
