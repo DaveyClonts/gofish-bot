@@ -49,9 +49,7 @@ static void drawCard(game_state *game, int playerId) {
     }
 }
 
-static void giveCardToPlayer(game_state *game, int giverId, int recieverId, int cardIndex) {
-    player *giver = &game->players[giverId];
-    player *reciever = &game->players[recieverId];
+static void giveCardToPlayer(player *giver, player *reciever, int cardIndex) {
     if (giver->handSize <= 0) {
         fprintf(stderr, "Error: giver's hand is empty");
         exit(EXIT_FAILURE);
@@ -68,6 +66,26 @@ static void giveCardToPlayer(game_state *game, int giverId, int recieverId, int 
     reciever->hand[reciever->handSize] = passingCard;
     reciever->handSize++;
 }
+
+// static void giveCardToPlayer(game_state *game, int giverId, int recieverId, int cardIndex) {
+//     player *giver = &game->players[giverId];
+//     player *reciever = &game->players[recieverId];
+//     if (giver->handSize <= 0) {
+//         fprintf(stderr, "Error: giver's hand is empty");
+//         exit(EXIT_FAILURE);
+//     }
+
+//     //shifts cards left and reduces handSize
+//     card passingCard = giver->hand[cardIndex];
+//     for (int i = cardIndex; i < giver->handSize - 1; i++) {
+//         giver->hand[i] = giver->hand[i + 1];
+//     }
+//     giver->handSize--;
+
+//     checkHandCapacity(reciever);
+//     reciever->hand[reciever->handSize] = passingCard;
+//     reciever->handSize++;
+// }
 
 static void giveCardToBook(game_state *game, book *book, int giverId, int cardIndex) {
     player *giver = &game->players[giverId];
@@ -125,6 +143,25 @@ static void checkPlayersForBook(game_state *game) {
     }
 }
 
+//make this transferCard as well...?
+static bool checkHandForCard(player *target, player *asker, card targetedCard) {
+    bool found = false;
+
+    for(int i = 0; i < target->handSize; i++) {
+
+        if(
+            target->hand[i].value == targetedCard.value
+            &&
+            target->hand[i].suit == targetedCard.suit
+        ) {
+            giveCardToPlayer(target, asker, i);
+            found = true;
+        } 
+    }
+
+    return found;
+}
+
 //TODO: func for organizing hands by like value cards
 
 void gameInit() {
@@ -144,22 +181,43 @@ void gameInit() {
 }
 
 static void gameplayLoop(game_state *game) {
+    player player1 = game->players[0];
+    player player2 = game->players[1];
+
+
     while(!game->winCondition.hasWon) {
         tui_clearScreen();
+        //TODO: check if books already been won
         tui_displayTurn(game);
 
         for(int i = 0; i < game->playerCount; i++) {
             bool gotCard;
 
+            //TEMPORARY SOLUTION FOR FINDING OTHER PLAYER FOR HAND CHECKS
+            int otherPlayerId;
+
+            if(i == 0) {
+                otherPlayerId = 1;
+            } else {
+                otherPlayerId = 0;
+            }
+
+
             //has to be five cuz it maybe at somepoint holds the \n 
             char playerInput[5];
             tui_askForCard(playerInput, sizeof(playerInput));
+            card inputedCard; //TODO: refactor tui_askforcard to take a card not a cstring. makes it easier for checks
+
+
+            //check if card/cards is in targets hand, if it is transfer cards
+            checkHandForCard(game->players[otherPlayerId], game->players[i], inputedCard);
+
+            //if it is gotCard = true
 
             while(gotCard) {
 
                 
 
-                //ask for card
                 //do action
                 //check for win
                 //refresh display
@@ -177,8 +235,7 @@ void startGame() {
 
     tui_displayTurn(&g_game);
 
-    char playerInput[4];
-    tui_askForCard(playerInput, sizeof(playerInput));
+    gameplayLoop(&g_game);
 
     //gameplayLoop(&g_game);
 }
