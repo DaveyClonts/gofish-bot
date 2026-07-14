@@ -151,7 +151,8 @@ static void gameplayLoop(game_state *game) {
         for(int i = 0; i < game->playerCount; i++) {
             bool gotCard;
 
-            char playerInput[4];
+            //has to be five cuz it maybe at somepoint holds the \n 
+            char playerInput[5];
             tui_askForCard(playerInput, sizeof(playerInput));
 
             while(gotCard) {
@@ -166,14 +167,6 @@ static void gameplayLoop(game_state *game) {
                 //else break loop and do next player
             }
         }
-
-        //start loop with player id (index)
-        //ask for a card
-        //do action
-        //check for win
-        //refresh display
-        //if got card loop back to ask card
-        //else loop back to start and do next player
 
     }
 }

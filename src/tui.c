@@ -77,7 +77,7 @@ static void displayHands(game_state *game) {
             usersId = game->players[i].playerNum;
         } else {
             printf("Opponent's Hand:");
-            printCardsInHand(&game->players[i], true);
+            printCardsInHand(&game->players[i], false);
         }
     }
 
@@ -127,22 +127,21 @@ static bool isValidCardInput(const char *cardInput) {
             || inputValue == 'K'
             || inputValue == 'A'
         ) {
-            return false;
+            return true;
         }
     } else {
         if(cardInput[0] == '1' && cardInput[1] == '0') {
-            return false;
+            return true;
         }
     }
 
-    return true;
+    return false;
 }
 
 void tui_askForCard(char *playerInput, size_t playerInputSize) {
-    
-    printf("Ask for card: ");
-
     while(true) {
+        printf("Ask for card: ");
+
         //handles basic fgets validation, and returns empty string if something goes wrong
         if(fgets(playerInput, playerInputSize, stdin) == NULL) {
             playerInput[0] = '\0';
@@ -154,13 +153,11 @@ void tui_askForCard(char *playerInput, size_t playerInputSize) {
         if (newline != NULL) {
             *newline = '\0';
         } else {
-            //input too long
             //clears for next fgets()
             int character;
-            while ((character = getchar() != '\n' && character != EOF)) {
-                printf("Input is too long... Please ask for valid card (AC, 10H, 9D, JS etc):\n");
-                continue;
-            }
+            while ((character = getchar()) != '\n' && character != EOF); //pretty dumb, i think this removes old inputs from fgets
+            printf("Invalid request... Please ask for a valid card (AC, 10H, 9D, JS etc)\n");
+            continue;
         }
 
         //force input to uppercase
@@ -170,6 +167,8 @@ void tui_askForCard(char *playerInput, size_t playerInputSize) {
 
         if(isValidCardInput(playerInput)) {
             return;
+        } else {
+            printf("Invalid request... Please ask for a valid card (AC, 10H, 9D, JS, etc)\n");
         }
     }
 
