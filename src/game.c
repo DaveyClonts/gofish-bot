@@ -140,11 +140,11 @@ static bool checkHandForCard(player *target, player *asker, card targetedCard) {
     return found;
 }
 
-static bool checkForWin(game_state *game) {
+static void checkForWin(game_state *game) {
     if (game->sizeOfBooks == 13) {
         game->winCondition.hasWon = true;
     } else {
-        return false;
+        return;
     }
 
     int bookCount[game->playerCount];
@@ -192,13 +192,11 @@ void gameInit() {
 }
 
 static void gameplayLoop(game_state *game) {
-    player player1 = game->players[0];
-    player player2 = game->players[1];
-
 
     while(!game->winCondition.hasWon) {
         tui_clearScreen();
         //TODO: check if books already been won
+        checkPlayersForBook(game);
         tui_displayTurn(game);
 
         for(int i = 0; i < game->playerCount; i++) {
@@ -207,6 +205,7 @@ static void gameplayLoop(game_state *game) {
             bool gotCard;
 
             //TEMPORARY SOLUTION FOR FINDING OTHER PLAYER FOR HAND CHECKS
+            //NEEDS TO SCALE WITH MULTIPLE PLAYERS
             int otherPlayerId;
             if(i == 0) {
                 otherPlayerId = 1;
@@ -223,10 +222,10 @@ static void gameplayLoop(game_state *game) {
             if (checkHandForCard(&game->players[otherPlayerId], &game->players[i], inputedCard)) {
                 gotCard = true;
             }
-            checkForWin(game);
-            tui_displayTurn(game);
 
             while(gotCard) {
+                tui_displayTurn(game);
+                checkPlayersForBook(game);
                 checkForWin(game);
 
                 char buffer[5];
@@ -238,22 +237,17 @@ static void gameplayLoop(game_state *game) {
                 } else {
                     gotCard = false;
                 }
-                tui_displayTurn(game);
-                
-
-                //do action
-                //check for win
-                //refresh display
-                //if got card loop back to ask card
-                //else break loop and do next player
             }
 
             //DRAW CARD BLOCK
+            tui_displayTurn(game);
+            checkPlayersForBook(game);
+            checkForWin(game);
             drawCard(game, &game->players[i]);
+            checkPlayersForBook(game);
             checkForWin(game);
             tui_displayTurn(game);
         }
-
     }
 }
 
@@ -264,6 +258,4 @@ void startGame() {
     tui_displayTurn(&g_game);
 
     gameplayLoop(&g_game);
-
-    //gameplayLoop(&g_game);
 }
