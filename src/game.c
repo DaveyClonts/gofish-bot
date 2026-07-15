@@ -39,13 +39,12 @@ static void checkHandCapacity(player *player) {
     }
 }
 
-static void drawCard(game_state *game, int playerId) {
-    player *currentPlayer = &game->players[playerId];
+static void drawCard(game_state *game, player *player) {
 
-    checkHandCapacity(currentPlayer);
+    checkHandCapacity(player);
 
-    if (stackPop(&game->drawPile,&currentPlayer->hand[currentPlayer->handSize])) {
-        currentPlayer->handSize++;
+    if (stackPop(&game->drawPile,&player->hand[player->handSize])) {
+        player->handSize++;
     }
 }
 
@@ -187,8 +186,8 @@ void gameInit() {
     playersInit(&g_game);
 
     for (int i = 0; i < G_STARTING_HAND_SIZE; i++) {
-        drawCard(&g_game, 0);
-        drawCard(&g_game, 1);
+        drawCard(&g_game, &g_game.players[0]);
+        drawCard(&g_game, &g_game.players[1]);
     }
 }
 
@@ -249,7 +248,10 @@ static void gameplayLoop(game_state *game) {
                 //else break loop and do next player
             }
 
-            //DRAW CARD
+            //DRAW CARD BLOCK
+            drawCard(game, &game->players[i]);
+            checkForWin(game);
+            tui_displayTurn(game);
         }
 
     }

@@ -177,10 +177,5 @@ void tui_askForCard(char *playerInput, size_t playerInputSize) {
     }
 }
 
-//new way to organize this... 
-//have a displayTurn
-//dispalyTurn displays books, drawPile, and hands
-//maybe not asks for input because i dont want to have to include too much of the games functionality here
-
 //game.c does functions
 //tui.c does visuals
