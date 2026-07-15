@@ -67,26 +67,6 @@ static void giveCardToPlayer(player *giver, player *reciever, int cardIndex) {
     reciever->handSize++;
 }
 
-// static void giveCardToPlayer(game_state *game, int giverId, int recieverId, int cardIndex) {
-//     player *giver = &game->players[giverId];
-//     player *reciever = &game->players[recieverId];
-//     if (giver->handSize <= 0) {
-//         fprintf(stderr, "Error: giver's hand is empty");
-//         exit(EXIT_FAILURE);
-//     }
-
-//     //shifts cards left and reduces handSize
-//     card passingCard = giver->hand[cardIndex];
-//     for (int i = cardIndex; i < giver->handSize - 1; i++) {
-//         giver->hand[i] = giver->hand[i + 1];
-//     }
-//     giver->handSize--;
-
-//     checkHandCapacity(reciever);
-//     reciever->hand[reciever->handSize] = passingCard;
-//     reciever->handSize++;
-// }
-
 static void giveCardToBook(game_state *game, book *book, int giverId, int cardIndex) {
     player *giver = &game->players[giverId];
 
@@ -143,7 +123,6 @@ static void checkPlayersForBook(game_state *game) {
     }
 }
 
-//make this transferCard as well...?
 static bool checkHandForCard(player *target, player *asker, card targetedCard) {
     bool found = false;
 
@@ -160,6 +139,39 @@ static bool checkHandForCard(player *target, player *asker, card targetedCard) {
     }
 
     return found;
+}
+
+static bool checkForWin(game_state *game) {
+    if (game->sizeOfBooks == 13) {
+        game->winCondition.hasWon = true;
+    } else {
+        return false;
+    }
+
+    int bookCount[game->playerCount];
+    for (int i = 0; i < game->playerCount; i++) {
+        bookCount[i] = 0;
+    }
+
+    for (int bookIndex = 0; bookIndex < game->sizeOfBooks; bookIndex++) {
+        for (int playerIndex = 0; playerIndex < game->playerCount; playerIndex++) {
+            if (game->books[bookIndex].ownerId == game->players[playerIndex].playerNum) {
+                bookCount[playerIndex]++;
+                break;
+            }
+        }
+    }
+
+    int id;
+    int lastBookSize = 0;
+    for (int i = 0; i < game->playerCount; i++) {
+        if (bookCount[i] > lastBookSize) {
+            id = i;
+            lastBookSize = bookCount[i];
+        }
+    }
+
+    game->winCondition.winnerId = id;
 }
 
 //TODO: func for organizing hands by like value cards
@@ -191,31 +203,43 @@ static void gameplayLoop(game_state *game) {
         tui_displayTurn(game);
 
         for(int i = 0; i < game->playerCount; i++) {
+            printf("Player %d's turn\n", i + 1);
+
             bool gotCard;
 
             //TEMPORARY SOLUTION FOR FINDING OTHER PLAYER FOR HAND CHECKS
             int otherPlayerId;
-
             if(i == 0) {
                 otherPlayerId = 1;
             } else {
                 otherPlayerId = 0;
             }
 
-
             //has to be five cuz it maybe at somepoint holds the \n 
-            char playerInput[5];
-            tui_askForCard(playerInput, sizeof(playerInput));
-            card inputedCard; //TODO: refactor tui_askforcard to take a card not a cstring. makes it easier for checks
-
+            char buffer[5];
+            tui_askForCard(buffer, sizeof(buffer));
+            card inputedCard = shorthandToCard(buffer);
 
             //check if card/cards is in targets hand, if it is transfer cards
-            checkHandForCard(game->players[otherPlayerId], game->players[i], inputedCard);
-
-            //if it is gotCard = true
+            if (checkHandForCard(&game->players[otherPlayerId], &game->players[i], inputedCard)) {
+                gotCard = true;
+            }
+            checkForWin(game);
+            tui_displayTurn(game);
 
             while(gotCard) {
+                checkForWin(game);
 
+                char buffer[5];
+                tui_askForCard(buffer, sizeof(buffer));
+                card inputedCard = shorthandToCard(buffer);
+
+                if (checkHandForCard(&game->players[otherPlayerId], &game->players[i], inputedCard)) {
+                    gotCard = true;
+                } else {
+                    gotCard = false;
+                }
+                tui_displayTurn(game);
                 
 
                 //do action
@@ -224,6 +248,8 @@ static void gameplayLoop(game_state *game) {
                 //if got card loop back to ask card
                 //else break loop and do next player
             }
+
+            //DRAW CARD
         }
 
     }

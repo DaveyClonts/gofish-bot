@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 const char *suit_names[] = {
     "Clubs",
@@ -71,6 +72,41 @@ card g_deck[52] = {
     {SPADES, QUEEN}, {SPADES, KING}, {SPADES, ACE}
 };
 
+card shorthandToCard(char *shorthand) {
+    card newCard;
+
+    size_t length = strlen(shorthand);
+    char value[3];
+    char suit [2];
+
+    suit[0] = shorthand[length - 1];
+    suit[1] = '\0';
+
+    if (length == 2) {
+        value[0] = shorthand[0];
+        value[1] = '\0';
+    } else {
+        value[0] = '1';
+        value[1] = '0';
+        value[2] = '\0';
+    }
+
+    for (int i = TWO; i <= ACE; i++) {
+        if(strcmp(value, value_shorthand[i]) == 0) {
+            newCard.value = i;
+            break;
+        }
+    }
+
+    for (int i = CLUB; i <= SPADES; i++) {
+        if (strcmp(suit, suit_shorthand[i]) == 0) {
+            newCard.suit = i;
+            break;
+        }
+    }
+
+    return newCard;
+}
 
 void cardToShorthand(card card, char output[], size_t size) {
     snprintf(

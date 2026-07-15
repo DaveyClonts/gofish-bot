@@ -33,6 +33,8 @@ typedef struct {
 
 extern card g_deck[52];
 
+card shorthandToCard(char *shorthand);
+
 void cardToShorthand(card card, char output[], size_t size);
 
 void readCard(card card);

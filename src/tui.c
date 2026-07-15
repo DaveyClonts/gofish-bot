@@ -94,10 +94,14 @@ static void displayHands(game_state *game) {
 
 void tui_displayTurn(game_state *game) {
     tui_clearScreen();
-
     displayBooks(game);
     tui_newline(3);
     displayHands(game);
+}
+
+void tui_displayWin(game_state *game) {
+    tui_clearScreen();
+    printf("Game Won");
 }
 
 static bool isValidCardInput(const char *cardInput) {
@@ -171,9 +175,6 @@ void tui_askForCard(char *playerInput, size_t playerInputSize) {
             printf("Invalid request... Please ask for a valid card (AC, 10H, 9D, JS, etc)\n");
         }
     }
-
-
-    
 }
 
 //new way to organize this... 
