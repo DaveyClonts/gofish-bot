@@ -108,6 +108,14 @@ card shorthandToCard(char *shorthand) {
     return newCard;
 }
 
+const char *valueToShorthand(values value) {
+    return value_shorthand[value];
+}
+
+const char *suitToShorthand(suits suit) {
+    return suit_shorthand[suit];
+}
+
 void cardToShorthand(card card, char output[], size_t size) {
     snprintf(
         output,

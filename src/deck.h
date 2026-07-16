@@ -35,6 +35,10 @@ extern card g_deck[52];
 
 card shorthandToCard(char *shorthand);
 
+const char *valueToShorthand(values value);
+
+const char *suitToShorthand(suits suit);
+
 void cardToShorthand(card card, char output[], size_t size);
 
 void readCard(card card);

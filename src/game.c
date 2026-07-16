@@ -125,13 +125,9 @@ static void checkPlayersForBook(game_state *game) {
 static bool checkHandForCard(player *target, player *asker, card targetedCard) {
     bool found = false;
 
-    for(int i = 0; i < target->handSize; i++) {
+    for(int i = target->handSize - 1; i > 0; i--) {
 
-        if(
-            target->hand[i].value == targetedCard.value
-            &&
-            target->hand[i].suit == targetedCard.suit
-        ) {
+        if(target->hand[i].value == targetedCard.value) {
             giveCardToPlayer(target, asker, i);
             found = true;
         } 
@@ -202,7 +198,7 @@ static void gameplayLoop(game_state *game) {
         for(int i = 0; i < game->playerCount; i++) {
             printf("Player %d's turn\n", i + 1);
 
-            bool gotCard;
+            bool gotCard = false;
 
             //TEMPORARY SOLUTION FOR FINDING OTHER PLAYER FOR HAND CHECKS
             //NEEDS TO SCALE WITH MULTIPLE PLAYERS
@@ -216,7 +212,7 @@ static void gameplayLoop(game_state *game) {
             //has to be five cuz it maybe at somepoint holds the \n 
             char buffer[5];
             tui_askForCard(buffer, sizeof(buffer));
-            card inputedCard = shorthandToCard(buffer);
+            card inputedCard = shorthandToCard(buffer); //TODO: refactor to work for values
 
             //check if card/cards is in targets hand, if it is transfer cards
             if (checkHandForCard(&game->players[otherPlayerId], &game->players[i], inputedCard)) {
@@ -224,9 +220,9 @@ static void gameplayLoop(game_state *game) {
             }
 
             while(gotCard) {
-                tui_displayTurn(game);
                 checkPlayersForBook(game);
                 checkForWin(game);
+                tui_displayTurn(game);
 
                 char buffer[5];
                 tui_askForCard(buffer, sizeof(buffer));
@@ -240,9 +236,9 @@ static void gameplayLoop(game_state *game) {
             }
 
             //DRAW CARD BLOCK
-            tui_displayTurn(game);
             checkPlayersForBook(game);
             checkForWin(game);
+            tui_displayTurn(game);
             drawCard(game, &game->players[i]);
             checkPlayersForBook(game);
             checkForWin(game);

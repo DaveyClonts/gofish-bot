@@ -36,7 +36,7 @@ void tui_startScreen() {
 static void printWonBookValues(game_state *game, int playerId) {
     for (int i = 0; i < game->sizeOfBooks; i++) {
         if (game->books[i].ownerId == playerId) {
-            printf(" (%d) ", game->books[i].bookValue);
+            printf(" (%s) ", valueToShorthand(game->books[i].bookValue));
         }
     }
     printf("\n");
@@ -104,78 +104,57 @@ void tui_displayWin(game_state *game) {
     printf("Game Won");
 }
 
-static bool isValidCardInput(const char *cardInput) {
-    size_t length = strlen(cardInput);
+static bool isValidValue(const char *buffer) {
+    size_t length = strlen(buffer);
 
-    //size validation
-    if (!(length == 2 || length == 3)) {
-        return false;
-    }
-
-    //since suit will always be one character
-    char inputSuit = cardInput[length - 1];
-
-    //suit validation
-    if (!(inputSuit == 'H' || inputSuit == 'D' || inputSuit == 'C' || inputSuit == 'S')) {
-        return false;
-    }
-
-    //if not a 10, else a 10
     if (length == 2) {
-        char inputValue = cardInput[0];
-
-        if (
-            (inputValue >= '2' && inputValue <= '9') 
-            || inputValue == 'J'
-            || inputValue == 'Q'
-            || inputValue == 'K'
-            || inputValue == 'A'
-        ) {
-            return true;
-        }
-    } else {
-        if(cardInput[0] == '1' && cardInput[1] == '0') {
-            return true;
-        }
+        return (buffer[0] == '1' && buffer[1] == '0');
+    } 
+    
+    if (length == 1) {
+        return (
+            buffer[0] >= '2' && buffer[0] <= '9'
+            || buffer[0] == 'J'
+            || buffer[0] == 'Q'
+            || buffer[0] == 'K'
+            || buffer[0] == 'A'
+        );
     }
 
     return false;
 }
 
-void tui_askForCard(char *playerInput, size_t playerInputSize) {
-    while(true) {
-        printf("Ask for card: ");
 
-        //handles basic fgets validation, and returns empty string if something goes wrong
-        if(fgets(playerInput, playerInputSize, stdin) == NULL) {
-            playerInput[0] = '\0';
+
+void tui_askForCard(char *buffer, size_t bufferSize) {
+    while(true) {
+        printf("Do you have any: ");
+    
+        if(fgets(buffer, bufferSize, stdin) == NULL) {
+            buffer[0] = '\0'; //returns empty string if empty input
             return;
         }
-
-        //removes newline from input
-        char *newline = strchr(playerInput, '\n');
+    
+        char *newline = strchr(buffer, '\n');
         if (newline != NULL) {
-            *newline = '\0';
+            *newline = '\0'; //replaces newline with a string terminator
         } else {
-            //clears for next fgets()
+            //cleans out stdin since NULL means input was too long
             int character;
-            while ((character = getchar()) != '\n' && character != EOF); //pretty dumb, i think this removes old inputs from fgets
-            printf("Invalid request... Please ask for a valid card (AC, 10H, 9D, JS etc)\n");
+            while ((character = getchar()) != '\n' && character != EOF);
+            printf("Input too long...\n");
             continue;
         }
 
         //force input to uppercase
-        for (size_t i = 0; playerInput[i] != '\0'; i++) {
-            playerInput[i] = (char)toupper((unsigned char)playerInput[i]);
+        for (size_t i = 0; buffer[i] != '\0'; i++) {
+            buffer[i] = (char)toupper((unsigned char)buffer[i]);
         }
 
-        if(isValidCardInput(playerInput)) {
+        if(isValidValue(buffer)) {
             return;
         } else {
-            printf("Invalid request... Please ask for a valid card (AC, 10H, 9D, JS, etc)\n");
+            printf("Invalid request...\n");
         }
     }
 }
-
-//game.c does functions
-//tui.c does visuals
