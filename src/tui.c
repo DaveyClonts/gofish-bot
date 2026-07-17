@@ -46,8 +46,7 @@ static void printCardsInHand(player *player, bool hidden) {
             printf(" ## ");
         } else {
             char cardShorthand[4];
-            cardToShorthand(player->hand[i], cardShorthand,
-                            sizeof(cardShorthand));
+            cardToShorthand(player->hand[i], cardShorthand, sizeof(cardShorthand));
             printf(" %s ", cardShorthand);
         }
     }
@@ -124,8 +123,8 @@ static bool isValidValue(player *player, const char *buffer) {
     }
 
     if (length == 1) {
-        return (buffer[0] >= '2' && buffer[0] <= '9' || buffer[0] == 'J' ||
-                buffer[0] == 'Q' || buffer[0] == 'K' || buffer[0] == 'A');
+        return (buffer[0] >= '2' && buffer[0] <= '9' || buffer[0] == 'J' || buffer[0] == 'Q' ||
+                buffer[0] == 'K' || buffer[0] == 'A');
     }
 
     return false;
