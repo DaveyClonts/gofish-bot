@@ -99,13 +99,27 @@ void tui_displayTurn(game_state *game) {
     displayHands(game);
 }
 
-void tui_displayWin(game_state *game) {
-    tui_clearScreen();
-    printf("Game Won");
+static bool checkForValidInput(player *player, const char *buffer) {
+    bool validInput = false;
+
+    for (int i = 0; i < player->handSize; i++) {
+        if (strcmp(buffer, valueToShorthand(player->hand[i].value)) == 0) {
+            validInput = true;
+            return validInput;
+        }
+    } 
+
+    return validInput;
 }
 
-static bool isValidValue(const char *buffer) {
+static bool isValidValue(player *player, const char *buffer) {
     size_t length = strlen(buffer);
+
+    if(checkForValidInput(player, buffer)) {
+        return true;
+    } else {
+        return false;
+    }
 
     if (length == 2) {
         return (buffer[0] == '1' && buffer[1] == '0');
@@ -124,11 +138,9 @@ static bool isValidValue(const char *buffer) {
     return false;
 }
 
-
-
-void tui_askForCard(char *buffer, size_t bufferSize) {
+void tui_askForCard(player *player, char *buffer, size_t bufferSize) {
     while(true) {
-        printf("Do you have any: ");
+        printf("Request a card: ");
     
         if(fgets(buffer, bufferSize, stdin) == NULL) {
             buffer[0] = '\0'; //returns empty string if empty input
@@ -151,7 +163,7 @@ void tui_askForCard(char *buffer, size_t bufferSize) {
             buffer[i] = (char)toupper((unsigned char)buffer[i]);
         }
 
-        if(isValidValue(buffer)) {
+        if(isValidValue(player, buffer)) {
             return;
         } else {
             printf("Invalid request...\n");

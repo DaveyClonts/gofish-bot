@@ -108,6 +108,18 @@ card shorthandToCard(char *shorthand) {
     return newCard;
 }
 
+values shorthandToValues(char *shorthand) {
+    values value;
+
+    for (int i = 0; i <= 12; i++) {
+        if(strcmp(shorthand, value_shorthand[i]) == 0) {
+            value = i;
+        }
+    }
+
+    return value;
+}
+
 const char *valueToShorthand(values value) {
     return value_shorthand[value];
 }

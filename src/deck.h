@@ -35,6 +35,8 @@ extern card g_deck[52];
 
 card shorthandToCard(char *shorthand);
 
+values shorthandToValues(char *shorthand);
+
 const char *valueToShorthand(values value);
 
 const char *suitToShorthand(suits suit);
