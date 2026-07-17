@@ -3,12 +3,7 @@
 #include <stddef.h>
 #define DECK_SIZE 52
 
-typedef enum {
-    CLUB,
-    DIAMOND,
-    HEART,
-    SPADES
-} suits;
+typedef enum { CLUB, DIAMOND, HEART, SPADES } suits;
 
 typedef enum {
     TWO,

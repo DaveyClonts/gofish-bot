@@ -38,4 +38,7 @@ run: $(TARGET)
 stats:
 	sh scripts/update_readme_stats.sh
 
+format:
+	clang-format -i $(SRC_DIR)/*.c $(SRC_DIR)/*.h
+
 -include $(DEP_FILES)

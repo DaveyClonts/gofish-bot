@@ -1,11 +1,11 @@
 #include "game.h"
+#include "deck.h"
+#include "stack.h"
+#include "tui.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "stack.h"
-#include "deck.h"
-#include "tui.h"
 
 // End condition: all thirteen books have been won
 // Worried that this file needs to be abstracted into player, books and what not
@@ -23,23 +23,25 @@ static void deckToStack(game_state *game, card deck[]) {
 }
 
 static void playersInit(game_state *game) {
-    for(int i = 0; i < game->playerCount; i++) {
+    for (int i = 0; i < game->playerCount; i++) {
         game->players[i].playerNum = i;
         game->players[i].handSize = 0;
         game->players[i].capacity = G_STARTING_HAND_SIZE;
-        game->players[i].hand = malloc(game->players[i].capacity * sizeof(card));
-        //potential for error handling and asserts on capacity
+        game->players[i].hand =
+            malloc(game->players[i].capacity * sizeof(card));
+        // potential for error handling and asserts on capacity
     }
-    game->players[0].isUser = true; //forced for now
+    game->players[0].isUser = true; // forced for now
 }
 
 static void checkHandCapacity(player *player) {
     if (player->handSize >= player->capacity) {
         player->capacity *= 2;
-        card *reallocHand = realloc(player->hand, player->capacity * sizeof(card));
+        card *reallocHand =
+            realloc(player->hand, player->capacity * sizeof(card));
 
         if (reallocHand == NULL) {
-            fprintf(stderr ,"Error: hand realloc failed");
+            fprintf(stderr, "Error: hand realloc failed");
             exit(EXIT_FAILURE);
         }
 
@@ -51,7 +53,7 @@ static void drawCard(game_state *game, player *player) {
 
     checkHandCapacity(player);
 
-    if (stackPop(&game->drawPile,&player->hand[player->handSize])) {
+    if (stackPop(&game->drawPile, &player->hand[player->handSize])) {
         player->handSize++;
     }
 }
@@ -67,7 +69,7 @@ static void giveCardToPlayer(player *giver, player *reciever, int cardIndex) {
         exit(EXIT_FAILURE);
     }
 
-    //shifts cards left and reduces handSize
+    // shifts cards left and reduces handSize
     card passingCard = giver->hand[cardIndex];
     for (int i = cardIndex; i < giver->handSize - 1; i++) {
         giver->hand[i] = giver->hand[i + 1];
@@ -79,7 +81,8 @@ static void giveCardToPlayer(player *giver, player *reciever, int cardIndex) {
     reciever->handSize++;
 }
 
-static void giveCardToBook(game_state *game, book *book, int giverId, int cardIndex) {
+static void giveCardToBook(game_state *game, book *book, int giverId,
+                           int cardIndex) {
     player *giver = &game->players[giverId];
 
     card passingCard = giver->hand[cardIndex];
@@ -93,7 +96,8 @@ static void giveCardToBook(game_state *game, book *book, int giverId, int cardIn
     book->bookSize++;
 }
 
-static void transferBookCards(game_state *game, player *player, values bookValue) {
+static void transferBookCards(game_state *game, player *player,
+                              values bookValue) {
     book newBook;
     newBook.bookSize = 0;
     newBook.ownerId = player->playerNum;
@@ -105,7 +109,7 @@ static void transferBookCards(game_state *game, player *player, values bookValue
         }
     }
     newBook.completed = true;
-    if(game->sizeOfBooks >= 13) {
+    if (game->sizeOfBooks >= 13) {
         fprintf(stderr, "Error: exceeding max number of books");
         exit(EXIT_FAILURE);
     }
@@ -119,7 +123,6 @@ static void checkHandForBook(game_state *game, player *player) {
 
     for (int i = 0; i < player->handSize; i++) {
         possibleValues[player->hand[i].value]++;
-        
 
         if (possibleValues[player->hand[i].value] == 4) {
             transferBookCards(game, player, player->hand[i].value);
@@ -128,21 +131,22 @@ static void checkHandForBook(game_state *game, player *player) {
     }
 }
 
-//unused? eventually goes in gameplay loop
+// unused? eventually goes in gameplay loop
 static void checkPlayersForBook(game_state *game) {
     for (int i = 0; i < game->playerCount; i++) {
-        checkHandForBook(game,&game->players[i]);
+        checkHandForBook(game, &game->players[i]);
     }
 }
 
-static bool checkHandForCard(player *target, player *asker, values targetedValue) {
+static bool checkHandForCard(player *target, player *asker,
+                             values targetedValue) {
     bool found = false;
 
-    for(int i = target->handSize - 1; i >= 0; i--) {
-        if(target->hand[i].value == targetedValue) {
+    for (int i = target->handSize - 1; i >= 0; i--) {
+        if (target->hand[i].value == targetedValue) {
             giveCardToPlayer(target, asker, i);
             found = true;
-        } 
+        }
     }
 
     return found;
@@ -161,8 +165,10 @@ static bool checkForWin(game_state *game) {
     }
 
     for (int bookIndex = 0; bookIndex < game->sizeOfBooks; bookIndex++) {
-        for (int playerIndex = 0; playerIndex < game->playerCount; playerIndex++) {
-            if (game->books[bookIndex].ownerId == game->players[playerIndex].playerNum) {
+        for (int playerIndex = 0; playerIndex < game->playerCount;
+             playerIndex++) {
+            if (game->books[bookIndex].ownerId ==
+                game->players[playerIndex].playerNum) {
                 bookCount[playerIndex]++;
                 break;
             }
@@ -182,7 +188,7 @@ static bool checkForWin(game_state *game) {
     return game->winCondition.hasWon;
 }
 
-//TODO: func for organizing hands by like value cards
+// TODO: func for organizing hands by like value cards
 
 void gameInit() {
     g_game.sizeOfBooks = 0;
@@ -202,64 +208,69 @@ void gameInit() {
 
 static void gameplayLoop(game_state *game) {
 
-    while(!game->winCondition.hasWon) {
+    while (!game->winCondition.hasWon) {
         tui_clearScreen();
-        //TODO: check if books already been won
+        // TODO: check if books already been won
         checkPlayersForBook(game);
         tui_displayTurn(game);
 
-        for(int playerIndex = 0; playerIndex < game->playerCount; playerIndex++) {
+        for (int playerIndex = 0; playerIndex < game->playerCount;
+             playerIndex++) {
             printf("Player %d's turn\n", playerIndex + 1);
 
             bool gotCard = false;
 
-            //TEMPORARY SOLUTION FOR FINDING OTHER PLAYER FOR HAND CHECKS
-            //NEEDS TO SCALE WITH MULTIPLE PLAYERS
+            // TEMPORARY SOLUTION FOR FINDING OTHER PLAYER FOR HAND CHECKS
+            // NEEDS TO SCALE WITH MULTIPLE PLAYERS
             int otherPlayerId;
-            if(playerIndex == 0) {
+            if (playerIndex == 0) {
                 otherPlayerId = 1;
             } else {
                 otherPlayerId = 0;
             }
 
-            //has to be five cuz it maybe at somepoint holds the \n 
+            // has to be five cuz it maybe at somepoint holds the \n
             char buffer[4];
-            tui_askForCard(&game->players[playerIndex],buffer, sizeof(buffer));
+            tui_askForCard(&game->players[playerIndex], buffer, sizeof(buffer));
             values inputedValue = shorthandToValues(buffer);
 
-            //check if card/cards is in targets hand, if it is transfer cards
-            if (checkHandForCard(&game->players[otherPlayerId], &game->players[playerIndex], inputedValue)) {
+            // check if card/cards is in targets hand, if it is transfer cards
+            if (checkHandForCard(&game->players[otherPlayerId],
+                                 &game->players[playerIndex], inputedValue)) {
                 gotCard = true;
             }
 
-            while(gotCard) {
+            while (gotCard) {
                 checkPlayersForBook(game);
-                if (checkForWin(game)){
+                if (checkForWin(game)) {
                     return;
                 }
                 tui_displayTurn(game);
 
                 char buffer[4];
-                tui_askForCard(&game->players[playerIndex], buffer, sizeof(buffer));
+                tui_askForCard(&game->players[playerIndex], buffer,
+                               sizeof(buffer));
                 values inputedValue = shorthandToValues(buffer);
 
-                if (checkHandForCard(&game->players[otherPlayerId], &game->players[playerIndex], inputedValue)) {
+                if (checkHandForCard(&game->players[otherPlayerId],
+                                     &game->players[playerIndex],
+                                     inputedValue)) {
                     gotCard = true;
                 } else {
                     gotCard = false;
                 }
             }
 
-            //DRAW CARD BLOCK
+            // DRAW CARD BLOCK
             checkPlayersForBook(game);
-            if (checkForWin(game)){
+            if (checkForWin(game)) {
                 return;
             }
             checkForWin(game);
             tui_displayTurn(game);
             drawCard(game, &game->players[playerIndex]);
             checkPlayersForBook(game);
-            if (checkForWin(game)){
+            if (checkForWin(game)) {
                 return;
             }
             tui_displayTurn(game);

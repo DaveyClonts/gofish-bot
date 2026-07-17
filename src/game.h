@@ -2,8 +2,8 @@
 #define GAME_H
 #include "deck.h"
 #include "stack.h"
-#include <stddef.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 typedef struct {
     card cardsInBook[4];

@@ -1,10 +1,8 @@
 #include "stack.h"
-#include <stdio.h>
 #include <stdbool.h>
+#include <stdio.h>
 
-void stackInit(stack_card *stack) {
-    stack->size = 0;
-}
+void stackInit(stack_card *stack) { stack->size = 0; }
 
 bool stackPush(stack_card *stack, card value) {
     if (stack->size >= DECK_SIZE) {
@@ -19,7 +17,7 @@ bool stackPush(stack_card *stack, card value) {
 }
 
 bool stackPop(stack_card *stack, card *drawn) {
-    if(stack->size <= 0) {
+    if (stack->size <= 0) {
         fprintf(stderr, "Error: stack is empty");
         return false;
     }
@@ -31,12 +29,12 @@ bool stackPop(stack_card *stack, card *drawn) {
 }
 
 bool stackPeek(stack_card *stack, card *peeked) {
-    if(stack->size <= 0) {
+    if (stack->size <= 0) {
         fprintf(stderr, "Error: stack is empty");
         return false;
     }
 
     *peeked = stack->cards[stack->size];
-    
+
     return true;
 }
