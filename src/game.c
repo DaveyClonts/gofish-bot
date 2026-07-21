@@ -181,7 +181,19 @@ static bool checkForWin(game_state *game) {
     return game->winCondition.hasWon;
 }
 
-// TODO: func for organizing hands by like value cards
+void organizeHand(player *player) {
+    for (int i = 1; i < player->handSize; i++) {
+        card current = player->hand[i];
+        int j = i;
+
+        while (j > 0 && player->hand[j - 1].value < current.value) {
+            player->hand[j] = player->hand[j - 1];
+            j--;
+        }
+
+        player->hand[j] = current;
+    }
+}
 
 void gameInit() {
     g_game.sizeOfBooks = 0;

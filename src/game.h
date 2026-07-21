@@ -35,6 +35,8 @@ typedef struct {
     int sizeOfBooks;
 } game_state;
 
+void organizeHand(player *player);
+
 void gameInit();
 
 void startGame();

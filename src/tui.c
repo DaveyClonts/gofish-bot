@@ -1,5 +1,6 @@
 #include "deck.h"
 #include "tui.h"
+#include "game.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -98,6 +99,9 @@ void tui_displayTurn(game_state *game) {
     tui_clearScreen();
     displayBooks(game);
     tui_newline(3);
+    for (int i = 0; i < game->playerCount; i++) {
+        organizeHand(&game->players[i]);
+    }
     displayHands(game);
 }
 
@@ -124,7 +128,7 @@ static bool isValidValue(player *player, const char *buffer) {
     if (!checkForValidInput(player, buffer)) {
         return false;
     }
-    
+
     if (length == 2) {
         return (buffer[0] == '1' && buffer[1] == '0');
     }
@@ -137,7 +141,7 @@ static bool isValidValue(player *player, const char *buffer) {
     return false;
 }
 
-bool tui_askForCard(player *player, char *buffer, size_t bufferSize) {
+bool tui_askForCard(player *player, char *buffer, int bufferSize) {
     while (true) {
         printf("Request a card: ");
 
