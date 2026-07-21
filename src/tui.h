@@ -8,8 +8,10 @@ void tui_newline(int howMuch);
 
 void tui_startScreen();
 
+void tui_winScreen(game_state *game);
+
 void tui_displayTurn(game_state *game);
 
-void tui_askForCard(player *player, char playerInput[], size_t playerInputSize);
+bool tui_askForCard(player *player, char playerInput[], size_t playerInputSize);
 
 #endif

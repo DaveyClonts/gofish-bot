@@ -15,6 +15,4 @@ bool stackPush(stack_card *stack, card value);
 
 bool stackPop(stack_card *stack, card *drawn);
 
-bool stackPeek(stack_card *stack, card *peeked);
-
 #endif

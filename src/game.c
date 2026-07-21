@@ -25,7 +25,11 @@ static void playersInit(game_state *game) {
         game->players[i].handSize = 0;
         game->players[i].capacity = G_STARTING_HAND_SIZE;
         game->players[i].hand = malloc(game->players[i].capacity * sizeof(card));
-        // potential for error handling and asserts on capacity
+
+        if (game->players[i].hand == NULL) {
+            fprintf(stderr, "Error: memory allocation failed");
+            exit(EXIT_FAILURE);
+        }
     }
     game->players[0].isUser = true; // forced for now
 }
@@ -196,10 +200,8 @@ void gameInit() {
 }
 
 static void gameplayLoop(game_state *game) {
-
     while (!game->winCondition.hasWon) {
         tui_clearScreen();
-        // TODO: check if books already been won
         checkPlayersForBook(game);
         tui_displayTurn(game);
 
@@ -219,7 +221,10 @@ static void gameplayLoop(game_state *game) {
 
             // ASK FOR INPUT BLOCK
             char buffer[4]; // has to be five cuz it maybe at somepoint holds the \n
-            tui_askForCard(&game->players[playerIndex], buffer, sizeof(buffer));
+            if (!tui_askForCard(&game->players[playerIndex], buffer, sizeof(buffer))) {
+                printf("Exited, ending game\n");
+                return;
+            }
             values inputedValue = shorthandToValues(buffer);
 
             // CHECK HAND BLOCK
@@ -232,12 +237,17 @@ static void gameplayLoop(game_state *game) {
             while (gotCard) {
                 checkPlayersForBook(game);
                 if (checkForWin(game)) {
+                    tui_winScreen(game);
                     return;
                 }
                 tui_displayTurn(game);
 
                 char buffer[4];
-                tui_askForCard(&game->players[playerIndex], buffer, sizeof(buffer));
+
+                if(!tui_askForCard(&game->players[playerIndex], buffer, sizeof(buffer))) {
+                    printf("Exited, ending game\n");
+                    return;
+                }
                 values inputedValue = shorthandToValues(buffer);
 
                 if (checkHandForCard(&game->players[otherPlayerId], &game->players[playerIndex],
@@ -251,13 +261,14 @@ static void gameplayLoop(game_state *game) {
             // DRAW CARD BLOCK
             checkPlayersForBook(game);
             if (checkForWin(game)) {
+                tui_winScreen(game);
                 return;
             }
-            checkForWin(game);
             tui_displayTurn(game);
             drawCard(game, &game->players[playerIndex]);
             checkPlayersForBook(game);
             if (checkForWin(game)) {
+                tui_winScreen(game);
                 return;
             }
             tui_displayTurn(game);

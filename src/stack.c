@@ -27,14 +27,3 @@ bool stackPop(stack_card *stack, card *drawn) {
 
     return true;
 }
-
-bool stackPeek(stack_card *stack, card *peeked) {
-    if (stack->size <= 0) {
-        fprintf(stderr, "Error: stack is empty");
-        return false;
-    }
-
-    *peeked = stack->cards[stack->size];
-
-    return true;
-}

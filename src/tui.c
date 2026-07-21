@@ -1,5 +1,5 @@
 #include "deck.h"
-#include "game.h"
+#include "tui.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -29,6 +29,11 @@ void tui_startScreen() {
     printf("Press any key to start...");
 
     getchar();
+}
+
+void tui_winScreen(game_state *game) {
+    printf("\nGame Won!\n");
+    printf("Winner: player %d", game->winCondition.winnerId);
 }
 
 static void printWonBookValues(game_state *game, int playerId) {
@@ -99,6 +104,10 @@ void tui_displayTurn(game_state *game) {
 static bool checkForValidInput(player *player, const char *buffer) {
     bool validInput = false;
 
+    if (player->handSize == 0) {
+        return true;
+    }
+
     for (int i = 0; i < player->handSize; i++) {
         if (strcmp(buffer, valueToShorthand(player->hand[i].value)) == 0) {
             validInput = true;
@@ -112,12 +121,10 @@ static bool checkForValidInput(player *player, const char *buffer) {
 static bool isValidValue(player *player, const char *buffer) {
     size_t length = strlen(buffer);
 
-    if (checkForValidInput(player, buffer)) {
-        return true;
-    } else {
+    if (!checkForValidInput(player, buffer)) {
         return false;
     }
-
+    
     if (length == 2) {
         return (buffer[0] == '1' && buffer[1] == '0');
     }
@@ -130,13 +137,13 @@ static bool isValidValue(player *player, const char *buffer) {
     return false;
 }
 
-void tui_askForCard(player *player, char *buffer, size_t bufferSize) {
+bool tui_askForCard(player *player, char *buffer, size_t bufferSize) {
     while (true) {
         printf("Request a card: ");
 
         if (fgets(buffer, bufferSize, stdin) == NULL) {
             buffer[0] = '\0'; // returns empty string if empty input
-            return;
+            return false;
         }
 
         char *newline = strchr(buffer, '\n');
@@ -157,7 +164,7 @@ void tui_askForCard(player *player, char *buffer, size_t bufferSize) {
         }
 
         if (isValidValue(player, buffer)) {
-            return;
+            return true;
         } else {
             printf("Invalid request...\n");
         }

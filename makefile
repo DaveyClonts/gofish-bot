@@ -1,5 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -Wextra
+CVERSION = -std=c23
 
 SRC_DIR := src
 BUILD_DIR := build
@@ -11,7 +12,7 @@ SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
 OBJS_FILES := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
 DEP_FILES := $(OBJS_FILES:.o=.d)
 
-.PHONY: all clean rebuild run stats
+.PHONY: all clean rebuild run stats format tidy
 
 all: $(TARGET)
 
@@ -21,7 +22,7 @@ $(TARGET): $(OBJS_FILES) | $(BIN_DIR)
 
 # builds .o from .c
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
+	$(CC) $(CFLAGS) $(CVERSION) -MMD -MP -c $< -o $@
 
 # apparently makes dir if not found
 $(BUILD_DIR) $(BIN_DIR):
@@ -40,5 +41,8 @@ stats:
 
 format:
 	clang-format -i $(SRC_DIR)/*.c $(SRC_DIR)/*.h
+
+tidy:
+	clang-tidy $(SRC_DIR)/*.c -- $(CVERSION) -Isrc
 
 -include $(DEP_FILES)
