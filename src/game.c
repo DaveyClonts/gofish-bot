@@ -256,7 +256,7 @@ static void gameplayLoop(game_state *game) {
 
                 char buffer[4];
 
-                if(!tui_askForCard(&game->players[playerIndex], buffer, sizeof(buffer))) {
+                if (!tui_askForCard(&game->players[playerIndex], buffer, sizeof(buffer))) {
                     printf("Exited, ending game\n");
                     return;
                 }

@@ -1,5 +1,5 @@
-#include "deck.h"
 #include "tui.h"
+#include "deck.h"
 #include "game.h"
 #include <ctype.h>
 #include <stdio.h>
