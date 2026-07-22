@@ -1,15 +1,13 @@
-// Public Headers
-#include <stdio.h>
+#include "game.h"
 #include <stdlib.h>
 #include <time.h>
 
-
-// Headers
-#include "deck.h"
-
 int main(void) {
-    srand(time(NULL)); //random gen for shuffle in deck.c
+    srand(time(NULL)); // random gen for shuffle in deck.c
 
-    shuffleDeck(deck);
-    printDeck(deck);
+    gameInit();
+
+    startGame();
+
+    return 0;
 }
