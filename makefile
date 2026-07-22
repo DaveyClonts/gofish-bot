@@ -1,6 +1,13 @@
 CC = gcc
 CFLAGS = -Wall -Wextra
+SANITIZER_FLAGS := -fsanitize=address,undefined \
+                   -fno-omit-frame-pointer \
+                   -g
 CVERSION = -std=c23
+
+CLFAGS += $(CVERSION)
+CFLAGS += $(SANITIZER_FLAGS)
+LDFLAGS += $(SANITIZER_FLAGS)
 
 SRC_DIR := src
 BUILD_DIR := build
@@ -18,7 +25,7 @@ all: $(TARGET)
 
 # builds executable by building all object files
 $(TARGET): $(OBJS_FILES) | $(BIN_DIR)
-	$(CC) $(OBJS_FILES) -o $@
+	$(CC) $(LDFLAGS) $(OBJS_FILES) -o $@
 
 # builds .o from .c
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)

@@ -1,6 +1,7 @@
 #include "tui.h"
 #include "deck.h"
 #include "game.h"
+#include "player.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -100,7 +101,7 @@ void tui_displayTurn(game_state *game) {
     displayBooks(game);
     tui_newline(3);
     for (int i = 0; i < game->playerCount; i++) {
-        organizeHand(&game->players[i]);
+        player_organizeHand(&game->players[i]);
     }
     displayHands(game);
 }

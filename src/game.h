@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+#define G_STARTING_HAND_SIZE 7
+
 typedef struct {
     card cardsInBook[4];
     int bookSize;
@@ -34,8 +36,6 @@ typedef struct {
     book books[13];
     int sizeOfBooks;
 } game_state;
-
-void organizeHand(player *player);
 
 void gameInit();
 

@@ -2,12 +2,10 @@
 #include "deck.h"
 #include "stack.h"
 #include "tui.h"
+#include "player.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-
-const int G_STARTING_HAND_SIZE = 7;
 
 game_state g_game;
 
@@ -19,65 +17,13 @@ static void deckToStack(game_state *game, card deck[]) {
     }
 }
 
-static void playersInit(game_state *game) {
-    for (int i = 0; i < game->playerCount; i++) {
-        game->players[i].playerNum = i;
-        game->players[i].handSize = 0;
-        game->players[i].capacity = G_STARTING_HAND_SIZE;
-        game->players[i].hand = malloc(game->players[i].capacity * sizeof(card));
-
-        if (game->players[i].hand == NULL) {
-            fprintf(stderr, "Error: memory allocation failed");
-            exit(EXIT_FAILURE);
-        }
-    }
-    game->players[0].isUser = true; // forced for now
-}
-
-static void checkHandCapacity(player *player) {
-    if (player->handSize >= player->capacity) {
-        player->capacity *= 2;
-        card *reallocHand = realloc(player->hand, player->capacity * sizeof(card));
-
-        if (reallocHand == NULL) {
-            fprintf(stderr, "Error: hand realloc failed");
-            exit(EXIT_FAILURE);
-        }
-
-        player->hand = reallocHand;
-    }
-}
-
 static void drawCard(game_state *game, player *player) {
 
-    checkHandCapacity(player);
+    player_checkHandCapicity(player);
 
     if (stackPop(&game->drawPile, &player->hand[player->handSize])) {
         player->handSize++;
     }
-}
-
-static void giveCardToPlayer(player *giver, player *reciever, int cardIndex) {
-    if (giver->handSize <= 0) {
-        fprintf(stderr, "Error: giver's hand is empty");
-        exit(EXIT_FAILURE);
-    }
-
-    if (cardIndex < 0 || cardIndex >= giver->handSize) {
-        fprintf(stderr, "Error: cardIndex is out of bounds");
-        exit(EXIT_FAILURE);
-    }
-
-    // shifts cards left and reduces handSize
-    card passingCard = giver->hand[cardIndex];
-    for (int i = cardIndex; i < giver->handSize - 1; i++) {
-        giver->hand[i] = giver->hand[i + 1];
-    }
-    giver->handSize--;
-
-    checkHandCapacity(reciever);
-    reciever->hand[reciever->handSize] = passingCard;
-    reciever->handSize++;
 }
 
 static void giveCardToBook(game_state *game, book *book, int giverId, int cardIndex) {
@@ -134,19 +80,6 @@ static void checkPlayersForBook(game_state *game) {
     }
 }
 
-static bool checkHandForCard(player *target, player *asker, values targetedValue) {
-    bool found = false;
-
-    for (int i = target->handSize - 1; i >= 0; i--) {
-        if (target->hand[i].value == targetedValue) {
-            giveCardToPlayer(target, asker, i);
-            found = true;
-        }
-    }
-
-    return found;
-}
-
 static bool checkForWin(game_state *game) {
     if (game->sizeOfBooks == 13) {
         game->winCondition.hasWon = true;
@@ -181,20 +114,6 @@ static bool checkForWin(game_state *game) {
     return game->winCondition.hasWon;
 }
 
-void organizeHand(player *player) {
-    for (int i = 1; i < player->handSize; i++) {
-        card current = player->hand[i];
-        int j = i;
-
-        while (j > 0 && player->hand[j - 1].value < current.value) {
-            player->hand[j] = player->hand[j - 1];
-            j--;
-        }
-
-        player->hand[j] = current;
-    }
-}
-
 void gameInit() {
     g_game.sizeOfBooks = 0;
     g_game.winCondition.hasWon = false;
@@ -203,7 +122,7 @@ void gameInit() {
     shuffleDeck(g_deck);
     deckToStack(&g_game, g_deck);
 
-    playersInit(&g_game);
+    player_initPlayers(&g_game);
 
     for (int i = 0; i < G_STARTING_HAND_SIZE; i++) {
         drawCard(&g_game, &g_game.players[0]);
@@ -241,7 +160,7 @@ static void gameplayLoop(game_state *game) {
 
             // CHECK HAND BLOCK
             // check if card/cards is in targets hand, if it is transfer cards
-            if (checkHandForCard(&game->players[otherPlayerId], &game->players[playerIndex],
+            if (player_checkHandForCard(&game->players[otherPlayerId], &game->players[playerIndex],
                                  inputedValue)) {
                 gotCard = true;
             }
@@ -262,7 +181,7 @@ static void gameplayLoop(game_state *game) {
                 }
                 values inputedValue = shorthandToValues(buffer);
 
-                if (checkHandForCard(&game->players[otherPlayerId], &game->players[playerIndex],
+                if (player_checkHandForCard(&game->players[otherPlayerId], &game->players[playerIndex],
                                      inputedValue)) {
                     gotCard = true;
                 } else {
