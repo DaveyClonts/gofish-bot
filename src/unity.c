@@ -1,0 +1,7 @@
+#include "deck.c"
+#include "stack.c"
+#include "player.c"
+#include "tui.c"
+#include "game.c"
+#include "bot.c"
+#include "main.c"

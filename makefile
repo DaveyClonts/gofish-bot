@@ -5,7 +5,7 @@ SANITIZER_FLAGS := -fsanitize=address,undefined \
                    -g
 CVERSION = -std=c23
 
-CLFAGS += $(CVERSION)
+CFLAGS += $(CVERSION)
 CFLAGS += $(SANITIZER_FLAGS)
 LDFLAGS += $(SANITIZER_FLAGS)
 
@@ -15,21 +15,21 @@ BIN_DIR := bin
 
 TARGET := $(BIN_DIR)/gofish
 
-SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
-OBJS_FILES := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
-DEP_FILES := $(OBJS_FILES:.o=.d)
+UNITY_SRC := $(SRC_DIR)/unity.c
+UNITY_OBJ := $(BUILD_DIR)/unity.o
+DEP_FILES := $(UNITY_OBJ:.o=.d)
 
 .PHONY: all clean rebuild run stats format tidy
 
 all: $(TARGET)
 
-# builds executable by building all object files
-$(TARGET): $(OBJS_FILES) | $(BIN_DIR)
-	$(CC) $(LDFLAGS) $(OBJS_FILES) -o $@
+# Link the single unity-build object.
+$(TARGET): $(UNITY_OBJ) | $(BIN_DIR)
+	$(CC) $(LDFLAGS) $(UNITY_OBJ) -o $@
 
-# builds .o from .c
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.c | $(BUILD_DIR)
-	$(CC) $(CFLAGS) $(CVERSION) -MMD -MP -c $< -o $@
+# Compile every implementation as one translation unit.
+$(UNITY_OBJ): $(UNITY_SRC) | $(BUILD_DIR)
+	$(CC) $(CFLAGS) -MMD -MP -c $< -o $@
 
 # apparently makes dir if not found
 $(BUILD_DIR) $(BIN_DIR):
@@ -50,6 +50,6 @@ format:
 	clang-format -i $(SRC_DIR)/*.c $(SRC_DIR)/*.h
 
 tidy:
-	clang-tidy $(SRC_DIR)/*.c -- $(CVERSION) -Isrc
+	clang-tidy $(UNITY_SRC) -- $(CVERSION) -Isrc
 
 -include $(DEP_FILES)
