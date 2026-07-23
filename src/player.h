@@ -2,7 +2,7 @@
 #define PLAYER_H
 #include "game.h"
 
-void player_initPlayers(game_state *game);
+void player_initPlayer(player *player, int playerId);
 
 void player_checkHandCapicity(player *player);
 

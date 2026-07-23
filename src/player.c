@@ -2,19 +2,16 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-void player_initPlayers(game_state *game) {
-    for (int i = 0; i < game->playerCount; i++) {
-        game->players[i].playerNum = i;
-        game->players[i].handSize = 0;
-        game->players[i].capacity = G_STARTING_HAND_SIZE;
-        game->players[i].hand = malloc(game->players[i].capacity * sizeof(card));
+void player_initPlayer(player *player, int playerId) {
+    player->playerNum = playerId;
+    player->handSize = 0;
+    player->capacity = G_STARTING_HAND_SIZE;
+    player->hand = malloc(player->capacity * sizeof(card));
 
-        if (game->players[i].hand == NULL) {
-            fprintf(stderr, "Error: memory allocation failed");
-            exit(EXIT_FAILURE);
-        }
+    if (player->hand == NULL) {
+        fprintf(stderr, "Error: memory allocation failed");
+        exit(EXIT_FAILURE);
     }
-    game->players[0].isUser = true; // forced for now
 }
 
 void player_checkHandCapicity(player *player) {
