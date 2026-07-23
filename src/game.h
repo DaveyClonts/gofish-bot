@@ -2,10 +2,9 @@
 #define GAME_H
 #include "deck.h"
 #include "stack.h"
+#include "player.h"
 #include <stdbool.h>
 #include <stddef.h>
-
-#define G_STARTING_HAND_SIZE 7
 
 typedef struct {
     card cardsInBook[4];
@@ -14,14 +13,6 @@ typedef struct {
     int ownerId;
     values bookValue;
 } book;
-
-typedef struct {
-    int playerNum;
-    card *hand;
-    int handSize;
-    int capacity;
-    bool isUser;
-} player;
 
 typedef struct {
     bool hasWon;

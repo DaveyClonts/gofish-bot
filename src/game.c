@@ -114,27 +114,11 @@ static bool checkForWin(game_state *game) {
     return game->winCondition.hasWon;
 }
 
-// static void initPlayers(game_state *game) {
-//     for (int i = 0; i < game->playerCount; i++) {
-//         game->players[i].playerNum = i;
-//         game->players[i].handSize = 0;
-//         game->players[i].capacity = G_STARTING_HAND_SIZE;
-//         game->players[i].hand = malloc(game->players[i].capacity * sizeof(card));
-
-//         if (game->players[i].hand == NULL) {
-//             fprintf(stderr, "Error: memory allocation failed");
-//             exit(EXIT_FAILURE);
-//         }
-//     }
-//     game->players[0].isUser = true; // forced for now
-// }
-
 static void initPlayers(game_state *game) {
     
     for (int i = 0; i < game->playerCount; i++) {
         player_initPlayer(&game->players[i], i);
     }
-
 
     game->players[0].isUser = true; // forced for now
 }
