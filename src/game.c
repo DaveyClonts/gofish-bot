@@ -183,8 +183,11 @@ static void gameplayLoop(game_state *game) {
                                  inputedValue)) {
                 gotCard = true;
                 strcpy(game->eventBuffer, "Card found!\n");
+            } else {
+                strcpy(game->eventBuffer, "Card not found, turn over\n");
             }
-            strcpy(game->eventBuffer, "Card not found, turn over\n");
+
+
 
             while (gotCard) {
                 checkPlayersForBook(game);

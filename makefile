@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -O0 -g
 SANITIZER_FLAGS := -fsanitize=address,undefined \
-                   -fno-omit-frame-pointer \
+                   -fno-omit-frame-pointer
 CVERSION = -std=c23
 
 CFLAGS += $(SANITIZER_FLAGS)
