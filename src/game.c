@@ -6,6 +6,13 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+
+//States a turn can create:
+
+//A miss
+    //draw
+//A hit
 
 game_state g_game;
 
@@ -68,6 +75,7 @@ static void checkHandForBook(game_state *game, player *player) {
         possibleValues[player->hand[i].value]++;
 
         if (possibleValues[player->hand[i].value] == 4) {
+            strcpy(game->eventBuffer, "Book found!\n");
             transferBookCards(game, player, player->hand[i].value);
             return;
         }
@@ -127,6 +135,7 @@ void gameInit() {
     g_game.sizeOfBooks = 0;
     g_game.winCondition.hasWon = false;
     g_game.playerCount = 2;
+    g_game.eventBuffer[0] = '\0';
 
     shuffleDeck(g_deck);
     deckToStack(&g_game, g_deck);
@@ -173,7 +182,9 @@ static void gameplayLoop(game_state *game) {
             if (player_checkHandForCard(&game->players[otherPlayerId], &game->players[playerIndex],
                                  inputedValue)) {
                 gotCard = true;
+                strcpy(game->eventBuffer, "Card found!\n");
             }
+            strcpy(game->eventBuffer, "Card not found, turn over\n");
 
             while (gotCard) {
                 checkPlayersForBook(game);
@@ -194,12 +205,15 @@ static void gameplayLoop(game_state *game) {
                 if (player_checkHandForCard(&game->players[otherPlayerId], &game->players[playerIndex],
                                      inputedValue)) {
                     gotCard = true;
+                    strcpy(game->eventBuffer, "Card found!\n");
                 } else {
                     gotCard = false;
+                    strcpy(game->eventBuffer, "Card not found, turn over\n");
                 }
             }
 
             // DRAW CARD BLOCK
+            strcpy(game->eventBuffer, "Card drawn\n");
             checkPlayersForBook(game);
             if (checkForWin(game)) {
                 tui_winScreen(game);

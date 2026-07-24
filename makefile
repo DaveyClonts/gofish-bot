@@ -1,11 +1,9 @@
 CC = gcc
-CFLAGS = -Wall -Wextra
+CFLAGS = -Wall -Wextra -O0 -g
 SANITIZER_FLAGS := -fsanitize=address,undefined \
                    -fno-omit-frame-pointer \
-                   -g
 CVERSION = -std=c23
 
-CLFAGS += $(CVERSION)
 CFLAGS += $(SANITIZER_FLAGS)
 LDFLAGS += $(SANITIZER_FLAGS)
 
@@ -19,7 +17,7 @@ SRC_FILES := $(wildcard $(SRC_DIR)/*.c)
 OBJS_FILES := $(patsubst $(SRC_DIR)/%.c,$(BUILD_DIR)/%.o,$(SRC_FILES))
 DEP_FILES := $(OBJS_FILES:.o=.d)
 
-.PHONY: all clean rebuild run stats format tidy
+.PHONY: all clean rebuild run debug stats format tidy
 
 all: $(TARGET)
 
@@ -51,5 +49,8 @@ format:
 
 tidy:
 	clang-tidy $(SRC_DIR)/*.c -- $(CVERSION) -Isrc
+
+debug: $(TARGET)
+	gdb ./$(TARGET)
 
 -include $(DEP_FILES)
