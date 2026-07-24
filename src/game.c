@@ -216,14 +216,14 @@ static void gameplayLoop(game_state *game) {
             }
 
             // DRAW CARD BLOCK
-            strcpy(game->eventBuffer, "Card drawn\n");
-            checkPlayersForBook(game);
-            if (checkForWin(game)) {
-                tui_winScreen(game);
-                return;
-            }
-            tui_displayTurn(game);
+            // checkPlayersForBook(game);
+            // if (checkForWin(game)) {
+            //     tui_winScreen(game);
+            //     return;
+            // }
+            // tui_displayTurn(game);
             drawCard(game, &game->players[playerIndex]);
+            strcpy(game->eventBuffer, "Card drawn\n");
             checkPlayersForBook(game);
             if (checkForWin(game)) {
                 tui_winScreen(game);
