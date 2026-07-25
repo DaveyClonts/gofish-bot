@@ -221,7 +221,7 @@ static void gameplayLoop(game_state *game) {
         }
     }
 
-    printf("Game Won!\n");
+    printf("\nGame Won!\n");
     printf("Winner: player %d\n", game->winCondition.winnerId);
 }
 
