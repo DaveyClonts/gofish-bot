@@ -140,7 +140,6 @@ void gameInit() {
     shuffleDeck(g_deck);
     deckToStack(&g_game, g_deck);
 
-    // player_initPlayers(&g_game);
     initPlayers(&g_game);
 
     for (int i = 0; i < G_STARTING_HAND_SIZE; i++) {
@@ -151,11 +150,9 @@ void gameInit() {
 
 static void gameplayLoop(game_state *game) {
     while (!game->winCondition.hasWon) {
-        tui_clearScreen();
-        checkPlayersForBook(game);
-        tui_displayTurn(game);
-
         for (int playerIndex = 0; playerIndex < game->playerCount; playerIndex++) {
+            checkPlayersForBook(game);
+            tui_displayTurn(game);
             printf("Player %d's turn\n", playerIndex + 1);
 
             bool gotCard = false;
@@ -183,8 +180,6 @@ static void gameplayLoop(game_state *game) {
                                  inputedValue)) {
                 gotCard = true;
                 strcpy(game->eventBuffer, "Card found!\n");
-            } else {
-                strcpy(game->eventBuffer, "Card not found, turn over\n");
             }
 
 
@@ -198,7 +193,6 @@ static void gameplayLoop(game_state *game) {
                 tui_displayTurn(game);
 
                 char buffer[4];
-
                 if (!tui_askForCard(&game->players[playerIndex], buffer, sizeof(buffer))) {
                     printf("Exited, ending game\n");
                     return;
@@ -211,17 +205,10 @@ static void gameplayLoop(game_state *game) {
                     strcpy(game->eventBuffer, "Card found!\n");
                 } else {
                     gotCard = false;
-                    strcpy(game->eventBuffer, "Card not found, turn over\n");
                 }
             }
 
             // DRAW CARD BLOCK
-            // checkPlayersForBook(game);
-            // if (checkForWin(game)) {
-            //     tui_winScreen(game);
-            //     return;
-            // }
-            // tui_displayTurn(game);
             drawCard(game, &game->players[playerIndex]);
             strcpy(game->eventBuffer, "Card drawn\n");
             checkPlayersForBook(game);
@@ -229,7 +216,6 @@ static void gameplayLoop(game_state *game) {
                 tui_winScreen(game);
                 return;
             }
-            tui_displayTurn(game);
         }
     }
 

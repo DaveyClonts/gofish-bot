@@ -96,7 +96,7 @@ static void displayHands(game_state *game) {
     tui_newline(1);
 }
 
-void displayLastEvent(game_state *game) {
+static void displayLastEvent(game_state *game) {
     printf("%s", game->eventBuffer);
     game->eventBuffer[0] = '\0';
 }
