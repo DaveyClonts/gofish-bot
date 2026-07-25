@@ -1,8 +1,8 @@
 #ifndef GAME_H
 #define GAME_H
 #include "deck.h"
-#include "stack.h"
 #include "player.h"
+#include "stack.h"
 #include <stdbool.h>
 #include <stddef.h>
 

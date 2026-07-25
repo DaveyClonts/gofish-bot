@@ -1,8 +1,8 @@
 #include "game.h"
 #include "deck.h"
+#include "player.h"
 #include "stack.h"
 #include "tui.h"
-#include "player.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -27,7 +27,7 @@ static card drawCard(game_state *game, player *player) {
         drawnCard = player->hand[player->handSize];
         player->handSize++;
     }
-    
+
     return drawnCard;
 }
 
@@ -101,7 +101,7 @@ static bool checkForWin(game_state *game) {
         }
     }
 
-    //TODO: make this scale with more then two players
+    // TODO: make this scale with more then two players
     for (int i = 0; i < game->playerCount; i++) {
         if (bookCount[i] > 6) {
             game->winCondition.hasWon = true;
@@ -113,7 +113,7 @@ static bool checkForWin(game_state *game) {
 }
 
 static void initPlayers(game_state *game) {
-    
+
     for (int i = 0; i < game->playerCount; i++) {
         player_initPlayer(&game->players[i], i);
     }
@@ -172,7 +172,7 @@ static void gameplayLoop(game_state *game) {
                 otherPlayerId = 0;
             }
 
-            //ASK FOR CARD BLOCK
+            // ASK FOR CARD BLOCK
             values inputedValue;
             if (game->players[playerIndex].handSize == 0) {
                 strcpy(game->eventBuffer, "Empty hand, drawing and requesting drawn card");
@@ -184,7 +184,7 @@ static void gameplayLoop(game_state *game) {
             // CHECK HAND BLOCK
             // check if card/cards is in targets hand, if it is transfer cards
             if (player_checkHandForCard(&game->players[otherPlayerId], &game->players[playerIndex],
-                                 inputedValue)) {
+                                        inputedValue)) {
                 gotCard = true;
                 strcpy(game->eventBuffer, "Card found!\n");
             }
@@ -199,8 +199,8 @@ static void gameplayLoop(game_state *game) {
 
                 values inputedValue = takeInput(&game->players[playerIndex]);
 
-                if (player_checkHandForCard(&game->players[otherPlayerId], &game->players[playerIndex],
-                                     inputedValue)) {
+                if (player_checkHandForCard(&game->players[otherPlayerId],
+                                            &game->players[playerIndex], inputedValue)) {
                     gotCard = true;
                     strcpy(game->eventBuffer, "Card found!\n");
                 } else {
