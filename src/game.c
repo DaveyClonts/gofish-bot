@@ -125,7 +125,7 @@ static values takeInput(player *player) {
     char buffer[4];
     if (!tui_askForCard(player, buffer, sizeof(buffer))) {
         printf("Exited, ending game\n");
-        return NULL;
+        exit(EXIT_FAILURE);
     }
     values inputedValue = shorthandToValues(buffer);
     return inputedValue;
