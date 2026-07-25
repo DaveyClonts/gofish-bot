@@ -89,12 +89,6 @@ static void checkPlayersForBook(game_state *game) {
 }
 
 static bool checkForWin(game_state *game) {
-    if (game->sizeOfBooks == 13) {
-        game->winCondition.hasWon = true;
-    } else {
-        return false;
-    }
-
     int bookCount[game->playerCount];
     for (int i = 0; i < game->playerCount; i++) {
         bookCount[i] = 0;
@@ -108,17 +102,15 @@ static bool checkForWin(game_state *game) {
             }
         }
     }
-
-    int id;
-    int lastBookSize = 0;
+    
+    //TODO: make this scale with more then two players
     for (int i = 0; i < game->playerCount; i++) {
-        if (bookCount[i] > lastBookSize) {
-            id = i;
-            lastBookSize = bookCount[i];
+        if (bookCount[i] > 6) {
+            game->winCondition.hasWon = true;
+            game->winCondition.winnerId = i;
         }
     }
 
-    game->winCondition.winnerId = id;
     return game->winCondition.hasWon;
 }
 
