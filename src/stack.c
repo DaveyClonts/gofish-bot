@@ -27,3 +27,11 @@ bool stackPop(stack_card *stack, card *drawn) {
 
     return true;
 }
+
+bool stackIsEmpty(stack_card *stack) {
+    if (stack->size == 0) {
+        return true;
+    } else {
+        return false;
+    }
+}

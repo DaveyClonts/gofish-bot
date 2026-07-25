@@ -96,6 +96,11 @@ static void displayHands(game_state *game) {
     tui_newline(1);
 }
 
+static void displayLastEvent(game_state *game) {
+    printf("%s", game->eventBuffer);
+    game->eventBuffer[0] = '\0';
+}
+
 void tui_displayTurn(game_state *game) {
     tui_clearScreen();
     displayBooks(game);
@@ -104,6 +109,7 @@ void tui_displayTurn(game_state *game) {
         player_organizeHand(&game->players[i]);
     }
     displayHands(game);
+    displayLastEvent(game);
 }
 
 static bool checkForValidInput(player *player, const char *buffer) {

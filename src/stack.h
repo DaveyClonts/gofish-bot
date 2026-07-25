@@ -15,4 +15,6 @@ bool stackPush(stack_card *stack, card value);
 
 bool stackPop(stack_card *stack, card *drawn);
 
+bool stackIsEmpty(stack_card *stack);
+
 #endif
