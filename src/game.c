@@ -18,13 +18,17 @@ static void deckToStack(game_state *game, card deck[]) {
     }
 }
 
-static void drawCard(game_state *game, player *player) {
+static card drawCard(game_state *game, player *player) {
 
     player_checkHandCapicity(player);
 
+    card drawnCard;
     if (stackPop(&game->drawPile, &player->hand[player->handSize])) {
+        drawnCard = player->hand[player->handSize];
         player->handSize++;
     }
+    
+    return drawnCard;
 }
 
 static void giveCardToBook(game_state *game, book *book, int giverId, int cardIndex) {
@@ -127,6 +131,12 @@ static values takeInput(player *player) {
     return inputedValue;
 }
 
+static values emptyHand(game_state *game, player *drawingPlayer) {
+    card card;
+    card = drawCard(game, drawingPlayer);
+    return card.value;
+}
+
 void gameInit() {
     g_game.sizeOfBooks = 0;
     g_game.winCondition.hasWon = false;
@@ -162,7 +172,14 @@ static void gameplayLoop(game_state *game) {
                 otherPlayerId = 0;
             }
 
-            values inputedValue = takeInput(&game->players[playerIndex]);
+            //ASK FOR CARD BLOCK
+            values inputedValue;
+            if (game->players[playerIndex].handSize == 0) {
+                strcpy(game->eventBuffer, "Empty hand, drawing and requesting drawn card");
+                inputedValue = emptyHand(game, &game->players[playerIndex]);
+            } else {
+                inputedValue = takeInput(&game->players[playerIndex]);
+            }
 
             // CHECK HAND BLOCK
             // check if card/cards is in targets hand, if it is transfer cards
@@ -192,12 +209,14 @@ static void gameplayLoop(game_state *game) {
             }
 
             // DRAW CARD BLOCK
-            drawCard(game, &game->players[playerIndex]);
-            strcpy(game->eventBuffer, "Card drawn\n");
-            checkPlayersForBook(game);
-            if (checkForWin(game)) {
-                tui_winScreen(game);
-                return;
+            if (!stackIsEmpty(&game->drawPile)) {
+                drawCard(game, &game->players[playerIndex]);
+                strcpy(game->eventBuffer, "Card drawn\n");
+                checkPlayersForBook(game);
+                if (checkForWin(game)) {
+                    tui_winScreen(game);
+                    return;
+                }
             }
         }
     }
