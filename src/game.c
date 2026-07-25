@@ -8,12 +8,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-//States a turn can create:
-
-//A miss
-    //draw
-//A hit
-
 game_state g_game;
 
 static void deckToStack(game_state *game, card deck[]) {
@@ -102,7 +96,7 @@ static bool checkForWin(game_state *game) {
             }
         }
     }
-    
+
     //TODO: make this scale with more then two players
     for (int i = 0; i < game->playerCount; i++) {
         if (bookCount[i] > 6) {
@@ -121,6 +115,16 @@ static void initPlayers(game_state *game) {
     }
 
     game->players[0].isUser = true; // forced for now
+}
+
+static values takeInput(player *player) {
+    char buffer[4];
+    if (!tui_askForCard(player, buffer, sizeof(buffer))) {
+        printf("Exited, ending game\n");
+        return NULL;
+    }
+    values inputedValue = shorthandToValues(buffer);
+    return inputedValue;
 }
 
 void gameInit() {
@@ -158,13 +162,7 @@ static void gameplayLoop(game_state *game) {
                 otherPlayerId = 0;
             }
 
-            // ASK FOR INPUT BLOCK
-            char buffer[4]; // has to be five cuz it maybe at somepoint holds the \n
-            if (!tui_askForCard(&game->players[playerIndex], buffer, sizeof(buffer))) {
-                printf("Exited, ending game\n");
-                return;
-            }
-            values inputedValue = shorthandToValues(buffer);
+            values inputedValue = takeInput(&game->players[playerIndex]);
 
             // CHECK HAND BLOCK
             // check if card/cards is in targets hand, if it is transfer cards
@@ -174,8 +172,6 @@ static void gameplayLoop(game_state *game) {
                 strcpy(game->eventBuffer, "Card found!\n");
             }
 
-
-
             while (gotCard) {
                 checkPlayersForBook(game);
                 if (checkForWin(game)) {
@@ -184,12 +180,7 @@ static void gameplayLoop(game_state *game) {
                 }
                 tui_displayTurn(game);
 
-                char buffer[4];
-                if (!tui_askForCard(&game->players[playerIndex], buffer, sizeof(buffer))) {
-                    printf("Exited, ending game\n");
-                    return;
-                }
-                values inputedValue = shorthandToValues(buffer);
+                values inputedValue = takeInput(&game->players[playerIndex]);
 
                 if (player_checkHandForCard(&game->players[otherPlayerId], &game->players[playerIndex],
                                      inputedValue)) {
