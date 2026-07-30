@@ -24,11 +24,11 @@ typedef enum {
 typedef struct {
     suits suit;
     values value;
-} card;
+} Card;
 
-extern card g_deck[52];
+extern Card g_deck[52];
 
-card shorthandToCard(char *shorthand);
+Card shorthandToCard(char *shorthand);
 
 values shorthandToValues(char *shorthand);
 
@@ -36,12 +36,12 @@ const char *valueToShorthand(values value);
 
 const char *suitToShorthand(suits suit);
 
-void cardToShorthand(card card, char output[], size_t size);
+void cardToShorthand(Card card, char output[], size_t size);
 
-void readCard(card card);
+void readCard(Card card);
 
-void printDeck(card deck[]);
+void printDeck(Card deck[]);
 
-void shuffleDeck(card deck[]);
+void shuffleDeck(Card deck[]);
 
 #endif

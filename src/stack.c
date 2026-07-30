@@ -2,9 +2,9 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-void stackInit(stack_card *stack) { stack->size = 0; }
+void stackInit(StackCard *stack) { stack->size = 0; }
 
-bool stackPush(stack_card *stack, card value) {
+bool stackPush(StackCard *stack, Card value) {
     if (stack->size >= DECK_SIZE) {
         fprintf(stderr, "Error: stack limit exceeded");
         return false;
@@ -16,7 +16,7 @@ bool stackPush(stack_card *stack, card value) {
     return true;
 }
 
-bool stackPop(stack_card *stack, card *drawn) {
+bool stackPop(StackCard *stack, Card *drawn) {
     if (stack->size <= 0) {
         fprintf(stderr, "Error: stack is empty");
         return false;
@@ -28,7 +28,7 @@ bool stackPop(stack_card *stack, card *drawn) {
     return true;
 }
 
-bool stackIsEmpty(stack_card *stack) {
+bool stackIsEmpty(StackCard *stack) {
     if (stack->size == 0) {
         return true;
     } else {

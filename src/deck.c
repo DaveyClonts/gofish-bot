@@ -13,7 +13,7 @@ const char *value_names[] = {"Two",  "Three", "Four", "Five",  "Six",  "Seven", 
 
 const char *value_shorthand[] = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
 
-card g_deck[52] = {
+Card g_deck[52] = {
     // CLUB
     {CLUB, TWO},
     {CLUB, THREE},
@@ -74,8 +74,8 @@ card g_deck[52] = {
     {SPADES, KING},
     {SPADES, ACE}};
 
-card shorthandToCard(char *shorthand) {
-    card newCard;
+Card shorthandToCard(char *shorthand) {
+    Card newCard;
 
     size_t length = strlen(shorthand);
     char value[3];
@@ -126,24 +126,24 @@ const char *valueToShorthand(values value) { return value_shorthand[value]; }
 
 const char *suitToShorthand(suits suit) { return suit_shorthand[suit]; }
 
-void cardToShorthand(card card, char output[], size_t size) {
+void cardToShorthand(Card card, char output[], size_t size) {
     snprintf(output, size, "%s%s", value_shorthand[card.value], suit_shorthand[card.suit]);
 }
 
-void readCard(card card) { printf("%s of %s \n", value_names[card.value], suit_names[card.suit]); }
+void readCard(Card card) { printf("%s of %s \n", value_names[card.value], suit_names[card.suit]); }
 
-void printDeck(card deck[]) {
+void printDeck(Card deck[]) {
     for (int i = 0; i < DECK_SIZE; i++) {
         readCard(deck[i]);
     }
 }
 
 // Fisher-Yates shuffle algo
-void shuffleDeck(card deck[]) {
+void shuffleDeck(Card deck[]) {
     for (int i = 0; i < DECK_SIZE; i++) {
         int toBeSwapped = i + rand() % (DECK_SIZE - i);
 
-        card temp = deck[i];
+        Card temp = deck[i];
         deck[i] = deck[toBeSwapped];
         deck[toBeSwapped] = temp;
     }

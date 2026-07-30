@@ -12,15 +12,15 @@ typedef enum {
 } certaintiy;
 
 typedef struct {
-    card card;
+    Card card;
     certaintiy certaintiy;
     int targetId;
-} memoryCard;
+} MemoryCard;
 
 typedef struct {
-    memoryCard *remeberedCards;
+    MemoryCard *remeberedCards;
     int size;
     int capacity;
-} memory;
+} Memory;
 
 #endif

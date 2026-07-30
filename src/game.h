@@ -7,27 +7,27 @@
 #include <stddef.h>
 
 typedef struct {
-    card cardsInBook[4];
+    Card cardsInBook[4];
     int bookSize;
     bool completed;
     int ownerId;
     values bookValue;
-} book;
+} Book;
 
 typedef struct {
     bool hasWon;
     int winnerId;
-} win;
+} Win;
 
 typedef struct {
-    win winCondition;
-    stack_card drawPile;
-    player players[6];
+    Win winCondition;
+    StackCard drawPile;
+    Player players[6];
     int playerCount;
-    book books[13];
+    Book books[13];
     int sizeOfBooks;
     char eventBuffer[64];
-} game_state;
+} GameState;
 
 void gameInit();
 

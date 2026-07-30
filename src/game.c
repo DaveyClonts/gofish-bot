@@ -8,9 +8,9 @@
 #include <stdlib.h>
 #include <string.h>
 
-game_state g_game;
+GameState g_game;
 
-static void deckToStack(game_state *game, card deck[]) {
+static void deckToStack(GameState *game, Card deck[]) {
     stackInit(&game->drawPile);
 
     for (int i = 0; i < DECK_SIZE; i++) {
@@ -18,11 +18,11 @@ static void deckToStack(game_state *game, card deck[]) {
     }
 }
 
-static card drawCard(game_state *game, player *player) {
+static Card drawCard(GameState *game, Player *player) {
 
     player_checkHandCapicity(player);
 
-    card drawnCard;
+    Card drawnCard;
     if (stackPop(&game->drawPile, &player->hand[player->handSize])) {
         drawnCard = player->hand[player->handSize];
         player->handSize++;
@@ -31,10 +31,10 @@ static card drawCard(game_state *game, player *player) {
     return drawnCard;
 }
 
-static void giveCardToBook(game_state *game, book *book, int giverId, int cardIndex) {
-    player *giver = &game->players[giverId];
+static void giveCardToBook(GameState *game, Book *book, int giverId, int cardIndex) {
+    Player *giver = &game->players[giverId];
 
-    card passingCard = giver->hand[cardIndex];
+    Card passingCard = giver->hand[cardIndex];
 
     for (int i = cardIndex; i < giver->handSize - 1; i++) {
         giver->hand[i] = giver->hand[i + 1];
@@ -45,8 +45,8 @@ static void giveCardToBook(game_state *game, book *book, int giverId, int cardIn
     book->bookSize++;
 }
 
-static void transferBookCards(game_state *game, player *player, values bookValue) {
-    book newBook;
+static void transferBookCards(GameState *game, Player *player, values bookValue) {
+    Book newBook;
     newBook.bookSize = 0;
     newBook.ownerId = player->playerNum;
     newBook.bookValue = bookValue;
@@ -65,7 +65,7 @@ static void transferBookCards(game_state *game, player *player, values bookValue
     game->sizeOfBooks++;
 }
 
-static void checkHandForBook(game_state *game, player *player) {
+static void checkHandForBook(GameState *game, Player *player) {
 
     int possibleValues[13] = {0};
 
@@ -80,13 +80,13 @@ static void checkHandForBook(game_state *game, player *player) {
     }
 }
 
-static void checkPlayersForBook(game_state *game) {
+static void checkPlayersForBook(GameState *game) {
     for (int i = 0; i < game->playerCount; i++) {
         checkHandForBook(game, &game->players[i]);
     }
 }
 
-static bool checkForWin(game_state *game) {
+static bool checkForWin(GameState *game) {
     int bookCount[game->playerCount];
     for (int i = 0; i < game->playerCount; i++) {
         bookCount[i] = 0;
@@ -112,7 +112,7 @@ static bool checkForWin(game_state *game) {
     return game->winCondition.hasWon;
 }
 
-static void initPlayers(game_state *game) {
+static void initPlayers(GameState *game) {
 
     for (int i = 0; i < game->playerCount; i++) {
         player_initPlayer(&game->players[i], i);
@@ -121,7 +121,7 @@ static void initPlayers(game_state *game) {
     game->players[0].isUser = true; // forced for now
 }
 
-static values takeInput(player *player) {
+static values takeInput(Player *player) {
     char buffer[4];
     if (!tui_askForCard(player, buffer, sizeof(buffer))) {
         printf("Exited, ending game\n");
@@ -131,8 +131,8 @@ static values takeInput(player *player) {
     return inputedValue;
 }
 
-static values emptyHand(game_state *game, player *drawingPlayer) {
-    card card;
+static values emptyHand(GameState *game, Player *drawingPlayer) {
+    Card card;
     card = drawCard(game, drawingPlayer);
     return card.value;
 }
@@ -154,7 +154,7 @@ void gameInit() {
     }
 }
 
-static void gameplayLoop(game_state *game) {
+static void gameplayLoop(GameState *game) {
     while (!game->winCondition.hasWon) {
         for (int playerIndex = 0; playerIndex < game->playerCount; playerIndex++) {
             checkPlayersForBook(game);

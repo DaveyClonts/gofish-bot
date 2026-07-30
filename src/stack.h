@@ -5,16 +5,16 @@
 #include <stdbool.h>
 
 typedef struct {
-    card cards[52];
+    Card cards[52];
     int size;
-} stack_card;
+} StackCard;
 
-void stackInit(stack_card *stack);
+void stackInit(StackCard *stack);
 
-bool stackPush(stack_card *stack, card value);
+bool stackPush(StackCard *stack, Card value);
 
-bool stackPop(stack_card *stack, card *drawn);
+bool stackPop(StackCard *stack, Card *drawn);
 
-bool stackIsEmpty(stack_card *stack);
+bool stackIsEmpty(StackCard *stack);
 
 #endif
