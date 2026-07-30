@@ -1,6 +1,7 @@
 #ifndef EVENT_STREAM_H
 #define EVENT_STREAM_H
 #include "deck.h"
+#include "event_buffer.h"
 
 // found
 // not found
@@ -22,8 +23,8 @@ typedef enum {
     TURN_STARTED,
     CARD_REQUESTED,
     CARD_TRANSFERRED,
-    CARD_DRAWN,
     GO_FISH,
+    CARD_DRAWN,
     BOOK_FOUND,
     GAME_WON
 } event_type;
@@ -33,14 +34,14 @@ typedef struct {
     int actorId;
     int targetId;
     values value;
-    int cardsTransfered;
+    int numOfCardsTrasnferred;
 } Event;
 
 typedef struct {
     Event *events;
     int size;
     int capacity;
-    char *eventBuffer;
+    EventBuffer eventBuffer;
 } EventStream;
 
 #endif
