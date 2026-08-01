@@ -3,12 +3,14 @@
 #include "player.h"
 #include "stack.h"
 #include "tui.h"
+#include "event_stream.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 GameState g_game;
+EventStream g_eventStream;
 
 static void deckToStack(GameState *game, Card deck[]) {
     stackInit(&game->drawPile);
@@ -19,6 +21,7 @@ static void deckToStack(GameState *game, Card deck[]) {
 }
 
 static Card drawCard(GameState *game, Player *player) {
+    //publishEvent();
 
     player_checkHandCapicity(player);
 
@@ -147,6 +150,7 @@ void gameInit() {
     deckToStack(&g_game, g_deck);
 
     initPlayers(&g_game);
+    eventStreamInit(&g_eventStream);
 
     for (int i = 0; i < G_STARTING_HAND_SIZE; i++) {
         drawCard(&g_game, &g_game.players[0]);

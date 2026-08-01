@@ -4,6 +4,35 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
+static void logEvent(EventStream *stream, Event event) {
+    switch (event.eventType) {
+        case TURN_STARTED:
+            writeToLog(&stream->eventLog, "Player %d's turn: ", event.actorId);
+            break;
+        case CARD_REQUESTED:
+            writeToLog(&stream->eventLog, "Do you have any %ds?\n", event.value);
+            break;
+        case CARD_TRANSFERRED:
+            writeToLog(&stream->eventLog, "Player %d transferred %d %d cards to player %d\n", event.actorId, event.numOfCardsTransferred, event.value, event.targetId);
+            break;
+        case GO_FISH:
+            writeToLog(&stream->eventLog, "Go fish!\n");
+            break;
+        case CARD_DRAWN:
+            writeToLog(&stream->eventLog, "Player %d draws a %d\n", event.actorId, event.value);
+            break;
+        case BOOK_FOUND:
+            writeToLog(&stream->eventLog, "Book found by player %d for the %d card!\n", event.actorId, event.value);
+            break;
+        case GAME_WON:
+            writeToLog(&stream->eventLog, "Game won by player %d!\n", event.actorId);
+            break;
+        default:
+            fprintf(stderr, "Error: unrecognized eventType");
+            exit(EXIT_FAILURE);
+    }
+}
+
 void eventStreamInit(EventStream *stream) {
     stream->size = 0;
     stream->capacity = 16;
@@ -29,30 +58,5 @@ void publishEvent(EventStream *stream, Event event) {
     stream->events[stream->size] = event;
     stream->size++;
 
-    switch (event.eventType) {
-        case TURN_STARTED:
-            writeToLog(&stream->eventLog, "Player %d's turn: ", event.actorId);
-            break;
-        case CARD_REQUESTED:
-            writeToLog(&stream->eventLog, "Do you have any %ds?\n", event.targetId);
-            break;
-        case CARD_TRANSFERRED:
-            writeToLog(&stream->eventLog, "Player %d transfered %d %d cards to player %d\n", event.actorId, event.numOfCardsTrasnferred, event.value, event.targetId);
-            break;
-        case GO_FISH:
-            writeToLog(&stream->eventLog, "Go fish!\n");
-            break;
-        case CARD_DRAWN:
-            writeToLog(&stream->eventLog, "Player %d draws a %d\n", event.actorId, event.value);
-            break;
-        case BOOK_FOUND:
-            writeToLog(&stream->eventLog, "Book found by player %d for the %d card!\n", event.actorId, event.value);
-            break;
-        case GAME_WON:
-            writeToLog(&stream->eventLog, "Game won by player %d!\n", event.actorId);
-            break;
-        default:
-            fprintf(stderr, "Error: unrecognized eventType");
-            exit(EXIT_FAILURE);
-    }
+    logEvent(stream, event);
 }

@@ -1,9 +1,11 @@
 #ifndef EVENT_LOG_H
 #define EVENT_LOG_H
+#include <stddef.h>
 
 typedef struct {
     char *log;
-    int capacity;
+    size_t capacity;
+    size_t length;
 } EventLog;
 
 void eventLogInit(EventLog *log);

@@ -4,20 +4,57 @@
 #include <stdio.h>
 
 void eventLogInit(EventLog *log) {
-    log->capacity = 32;
-    log->log = malloc(log->capacity * sizeof(char));
+    log->capacity = 64;
+    log->length = 0;
+    log->log = malloc(log->capacity);
+
+    if (log->log == NULL) {
+        fprintf(stderr, "Error: failed to allocate %zu bytes", log->capacity);
+        exit(EXIT_FAILURE);
+    }
+
+    log->log[0] = '\0';
 }
 
 void writeToLog(EventLog *log, const char *message, ...) {
-    char *reallocPtr = realloc(log->log, log->capacity * sizeof(message));
-    if (reallocPtr == NULL) {
-        fprintf(stderr, "Error: event log realloc failed");
+
+    // these act as cursors ig? meaning they get consumed?
+    va_list arguments;
+    va_list argumentsCopy;
+
+    va_start(arguments, message);
+    va_copy(argumentsCopy, arguments);
+
+    //returns number of chars needed to complete formatted result needs
+    int messageLength = vsnprintf(NULL, 0, message, argumentsCopy);
+    if (messageLength < 0) {
+        va_end(arguments);
+        fprintf(stderr, "Error: vsnprintf failed");
         exit(EXIT_FAILURE);
     }
-    log->log = reallocPtr;
+    va_end(argumentsCopy);
 
-    va_list arguments;
-    va_start(arguments, message);
-    vsnprintf(log->log, sizeof(message), message, arguments);
+    size_t requiredCapacity = log->length + (size_t)messageLength + 1;
+
+    if (requiredCapacity > log->capacity) {
+        size_t newCapacity = log->capacity;
+
+        newCapacity *= 2;
+        char *newLog = realloc(log->log, newCapacity);
+
+        if (newLog == NULL) {
+            fprintf(stderr, "Error: failed to allocate new log");
+            exit(EXIT_FAILURE);
+        }
+
+        log->log = newLog;
+        log->capacity = newCapacity;
+    }
+
+    // write to log
+    vsnprintf(log->log + log->length, log->capacity - log->length, message, arguments);
+
     va_end(arguments);
+
+    log->length += (size_t)messageLength;
 }

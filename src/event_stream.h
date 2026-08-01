@@ -11,13 +11,16 @@
     // targeted card
 // CARD_DRAWN
     // card drawn
-// trade
-    // taker
-    // target
-    // cards traded
-// book found
-    // owner
+// CARD_TRANSFERRED
+    // actorId
+    // targetId
+    // numOfCardsTransferred
+    // Value of card transferred
+// BOOK_FOUND
+    // actorId
     // value of book
+// GAME_WON
+    // actorId - in this case winnerId
 
 typedef enum { 
     TURN_STARTED,
@@ -34,7 +37,7 @@ typedef struct {
     int actorId;
     int targetId;
     values value;
-    int numOfCardsTrasnferred;
+    int numOfCardsTransferred;
 } Event;
 
 typedef struct {
@@ -43,5 +46,9 @@ typedef struct {
     int capacity;
     EventLog eventLog;
 } EventStream;
+
+void eventStreamInit(EventStream *stream);
+
+void publishEvent(EventStream *stream, Event event);
 
 #endif
