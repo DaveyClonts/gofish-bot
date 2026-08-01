@@ -3,12 +3,11 @@
 
 typedef struct {
     char *buffer;
-    int size;
     int capacity;
 } EventBuffer;
 
 void eventBufferInit(EventBuffer *buffer);
 
-void checkEventBufferCapacity(EventBuffer *buffer);
+void writeToBuffer(EventBuffer *buffer, const char *message, ...);
 
 #endif
