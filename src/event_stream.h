@@ -1,7 +1,7 @@
 #ifndef EVENT_STREAM_H
 #define EVENT_STREAM_H
 #include "deck.h"
-#include "event_buffer.h"
+#include "event_log.h"
 
 // found
 // not found
@@ -41,7 +41,7 @@ typedef struct {
     Event *events;
     int size;
     int capacity;
-    EventBuffer eventBuffer;
+    EventLog eventLog;
 } EventStream;
 
 #endif

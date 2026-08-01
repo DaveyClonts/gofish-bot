@@ -97,8 +97,8 @@ static void displayHands(GameState *game) {
 }
 
 static void displayLastEvent(GameState *game) {
-    printf("%s", game->eventBuffer);
-    game->eventBuffer[0] = '\0';
+    printf("%s", game->eventLog);
+    game->eventLog[0] = '\0';
 }
 
 void tui_displayTurn(GameState *game) {

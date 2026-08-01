@@ -26,7 +26,7 @@ typedef struct {
     int playerCount;
     Book books[13];
     int sizeOfBooks;
-    char eventBuffer[64];
+    char eventLog[64];
 } GameState;
 
 void gameInit();

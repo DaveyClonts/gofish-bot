@@ -73,7 +73,7 @@ static void checkHandForBook(GameState *game, Player *player) {
         possibleValues[player->hand[i].value]++;
 
         if (possibleValues[player->hand[i].value] == 4) {
-            strcpy(game->eventBuffer, "Book found!\n");
+            strcpy(game->eventLog, "Book found!\n");
             transferBookCards(game, player, player->hand[i].value);
             return;
         }
@@ -141,7 +141,7 @@ void gameInit() {
     g_game.sizeOfBooks = 0;
     g_game.winCondition.hasWon = false;
     g_game.playerCount = 2;
-    g_game.eventBuffer[0] = '\0';
+    g_game.eventLog[0] = '\0';
 
     shuffleDeck(g_deck);
     deckToStack(&g_game, g_deck);
@@ -175,7 +175,7 @@ static void gameplayLoop(GameState *game) {
             // ASK FOR CARD BLOCK
             values inputedValue;
             if (game->players[playerIndex].handSize == 0) {
-                strcpy(game->eventBuffer, "Empty hand, drawing and requesting drawn card");
+                strcpy(game->eventLog, "Empty hand, drawing and requesting drawn card");
                 inputedValue = emptyHand(game, &game->players[playerIndex]);
             } else {
                 inputedValue = takeInput(&game->players[playerIndex]);
@@ -186,7 +186,7 @@ static void gameplayLoop(GameState *game) {
             if (player_checkHandForCard(&game->players[otherPlayerId], &game->players[playerIndex],
                                         inputedValue)) {
                 gotCard = true;
-                strcpy(game->eventBuffer, "Card found!\n");
+                strcpy(game->eventLog, "Card found!\n");
             }
 
             while (gotCard) {
@@ -202,7 +202,7 @@ static void gameplayLoop(GameState *game) {
                 if (player_checkHandForCard(&game->players[otherPlayerId],
                                             &game->players[playerIndex], inputedValue)) {
                     gotCard = true;
-                    strcpy(game->eventBuffer, "Card found!\n");
+                    strcpy(game->eventLog, "Card found!\n");
                 } else {
                     gotCard = false;
                 }
@@ -211,7 +211,7 @@ static void gameplayLoop(GameState *game) {
             // DRAW CARD BLOCK
             if (!stackIsEmpty(&game->drawPile)) {
                 drawCard(game, &game->players[playerIndex]);
-                strcpy(game->eventBuffer, "Card drawn\n");
+                strcpy(game->eventLog, "Card drawn\n");
                 checkPlayersForBook(game);
                 if (checkForWin(game)) {
                     tui_winScreen(game);
