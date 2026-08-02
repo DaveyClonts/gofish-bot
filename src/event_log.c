@@ -1,7 +1,7 @@
 #include "event_log.h"
 #include <stdarg.h>
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 void eventLogInit(EventLog *log) {
     log->capacity = 64;
@@ -25,7 +25,7 @@ void writeToLog(EventLog *log, const char *message, ...) {
     va_start(arguments, message);
     va_copy(argumentsCopy, arguments);
 
-    //returns number of chars needed to complete formatted result needs
+    // returns number of chars needed to complete formatted result needs
     int messageLength = vsnprintf(NULL, 0, message, argumentsCopy);
     if (messageLength < 0) {
         va_end(arguments);

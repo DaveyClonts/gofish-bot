@@ -1,9 +1,9 @@
 #include "game.h"
 #include "deck.h"
+#include "event_stream.h"
 #include "player.h"
 #include "stack.h"
 #include "tui.h"
-#include "event_stream.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -21,14 +21,18 @@ static void deckToStack(GameState *game, Card deck[]) {
 }
 
 static Card drawCard(GameState *game, Player *player) {
-    //publishEvent();
-
     player_checkHandCapicity(player);
 
     Card drawnCard;
     if (stackPop(&game->drawPile, &player->hand[player->handSize])) {
         drawnCard = player->hand[player->handSize];
         player->handSize++;
+
+        publishEvent(&g_eventStream, (Event){
+            .eventType = CARD_DRAWN,
+            .actorId = player->playerNum,
+            .value = drawnCard.value,
+        });
     }
 
     return drawnCard;
@@ -76,8 +80,14 @@ static void checkHandForBook(GameState *game, Player *player) {
         possibleValues[player->hand[i].value]++;
 
         if (possibleValues[player->hand[i].value] == 4) {
-            strcpy(game->eventLog, "Book found!\n");
-            transferBookCards(game, player, player->hand[i].value);
+            values bookValue = player->hand[i].value;
+            publishEvent(&g_eventStream, (Event){
+                .eventType = BOOK_FOUND,
+                .actorId = player->playerNum,
+                .value = bookValue,
+            });
+
+            transferBookCards(game, player, bookValue);
             return;
         }
     }
@@ -109,6 +119,11 @@ static bool checkForWin(GameState *game) {
         if (bookCount[i] > 6) {
             game->winCondition.hasWon = true;
             game->winCondition.winnerId = i;
+
+            publishEvent(&g_eventStream, (Event){
+                .eventType = GAME_WON,
+                .actorId = game->players[i].playerNum,
+            });
         }
     }
 
@@ -161,6 +176,11 @@ void gameInit() {
 static void gameplayLoop(GameState *game) {
     while (!game->winCondition.hasWon) {
         for (int playerIndex = 0; playerIndex < game->playerCount; playerIndex++) {
+            publishEvent(&g_eventStream, (Event){
+                .eventType = TURN_STARTED,
+                .actorId = game->players[playerIndex].playerNum,
+            });
+
             checkPlayersForBook(game);
             tui_displayTurn(game);
             printf("Player %d's turn\n", playerIndex + 1);

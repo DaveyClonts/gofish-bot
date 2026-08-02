@@ -7,22 +7,22 @@
 // not found
 
 // CARD_REQUESTED
-    // actorId
-    // targeted card
+// actorId
+// targeted card
 // CARD_DRAWN
-    // card drawn
+// card drawn
 // CARD_TRANSFERRED
-    // actorId
-    // targetId
-    // numOfCardsTransferred
-    // Value of card transferred
+// actorId
+// targetId
+// numOfCardsTransferred
+// Value of card transferred
 // BOOK_FOUND
-    // actorId
-    // value of book
+// actorId
+// value of book
 // GAME_WON
-    // actorId - in this case winnerId
+// actorId - in this case winnerId
 
-typedef enum { 
+typedef enum {
     TURN_STARTED,
     CARD_REQUESTED,
     CARD_TRANSFERRED,
