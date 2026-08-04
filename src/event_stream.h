@@ -8,6 +8,7 @@ typedef enum {
     CARD_REQUESTED,
     CARD_TRANSFERRED,
     GO_FISH,
+    EMPTY_HAND,
     CARD_DRAWN,
     BOOK_FOUND,
     GAME_WON
@@ -18,7 +19,6 @@ typedef struct {
     int actorId;
     int targetId;
     values value;
-    int numOfCardsTransferred;
 } Event;
 
 typedef struct {

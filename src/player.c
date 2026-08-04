@@ -1,5 +1,4 @@
 #include "player.h"
-#include "event_stream.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -64,17 +63,4 @@ void player_giveCardToPlayer(Player *giver, Player *reciever, int cardIndex) {
     player_checkHandCapicity(reciever);
     reciever->hand[reciever->handSize] = passingCard;
     reciever->handSize++;
-}
-
-bool player_checkHandForCard(Player *target, Player *asker, values targetedValue) {
-    bool found = false;
-
-    for (int i = target->handSize - 1; i >= 0; i--) {
-        if (target->hand[i].value == targetedValue) {
-            player_giveCardToPlayer(target, asker, i);
-            found = true;
-        }
-    }
-
-    return found;
 }

@@ -13,11 +13,14 @@ static void logEvent(EventStream *stream, Event event) {
         writeToLog(&stream->eventLog, "Do you have any %ds?\n", event.value);
         break;
     case CARD_TRANSFERRED:
-        writeToLog(&stream->eventLog, "Player %d transferred %d %d cards to player %d\n",
-                   event.actorId, event.numOfCardsTransferred, event.value, event.targetId);
+        writeToLog(&stream->eventLog, "Player %d transferred a %d card to player %d\n",
+                   event.actorId, event.value, event.targetId);
         break;
     case GO_FISH:
         writeToLog(&stream->eventLog, "Go fish!\n");
+        break;
+    case EMPTY_HAND:
+        writeToLog(&stream->eventLog, "Player %d has an empty hand", event.actorId);
         break;
     case CARD_DRAWN:
         writeToLog(&stream->eventLog, "Player %d draws a %d\n", event.actorId, event.value);
