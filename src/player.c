@@ -1,4 +1,5 @@
 #include "player.h"
+#include "event_stream.h"
 #include <stdio.h>
 #include <stdlib.h>
 

@@ -3,25 +3,6 @@
 #include "deck.h"
 #include "event_log.h"
 
-// found
-// not found
-
-// CARD_REQUESTED
-// actorId
-// targeted card
-// CARD_DRAWN
-// card drawn
-// CARD_TRANSFERRED
-// actorId
-// targetId
-// numOfCardsTransferred
-// Value of card transferred
-// BOOK_FOUND
-// actorId
-// value of book
-// GAME_WON
-// actorId - in this case winnerId
-
 typedef enum {
     TURN_STARTED,
     CARD_REQUESTED,
