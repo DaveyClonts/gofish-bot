@@ -28,11 +28,12 @@ static Card drawCard(GameState *game, Player *player) {
         drawnCard = player->hand[player->handSize];
         player->handSize++;
 
-        publishEvent(&g_eventStream, (Event){
-                                         .eventType = CARD_DRAWN,
-                                         .actorId = player->playerNum,
-                                         .value = drawnCard.value,
-                                     });
+        publishEvent(&g_eventStream,
+            (Event){
+                .eventType = CARD_DRAWN,
+                .actorId = player->playerNum,
+                .value = drawnCard.value,
+            });
     }
 
     return drawnCard;
@@ -81,11 +82,12 @@ static void checkHandForBook(GameState *game, Player *player) {
 
         if (possibleValues[player->hand[i].value] == 4) {
             values bookValue = player->hand[i].value;
-            publishEvent(&g_eventStream, (Event){
-                                             .eventType = BOOK_FOUND,
-                                             .actorId = player->playerNum,
-                                             .value = bookValue,
-                                         });
+            publishEvent(&g_eventStream,
+                (Event){
+                    .eventType = BOOK_FOUND,
+                    .actorId = player->playerNum,
+                    .value = bookValue,
+                });
 
             transferBookCards(game, player, bookValue);
             return;
@@ -120,10 +122,11 @@ static bool checkForWin(GameState *game) {
             game->winCondition.hasWon = true;
             game->winCondition.winnerId = i;
 
-            publishEvent(&g_eventStream, (Event){
-                                             .eventType = GAME_WON,
-                                             .actorId = game->players[i].playerNum,
-                                         });
+            publishEvent(&g_eventStream,
+                (Event){
+                    .eventType = GAME_WON,
+                    .actorId = game->players[i].playerNum,
+                });
         }
     }
 
@@ -153,10 +156,11 @@ static bool checkHandForCard(Player *actor, Player *target, values targetedValue
     bool gotCard = false;
     for (int i = target->handSize - 1; i >= 0; i--) {
         if (target->hand[i].value == targetedValue) {
-            publishEvent(&g_eventStream, (Event){.eventType = CARD_TRANSFERRED,
-                                                 .actorId = actor->playerNum,
-                                                 .value = targetedValue,
-                                                 .targetId = target->playerNum});
+            publishEvent(&g_eventStream,
+                (Event){.eventType = CARD_TRANSFERRED,
+                    .actorId = actor->playerNum,
+                    .value = targetedValue,
+                    .targetId = target->playerNum});
             player_giveCardToPlayer(target, actor, i);
             gotCard = true;
         }
@@ -166,8 +170,8 @@ static bool checkHandForCard(Player *actor, Player *target, values targetedValue
 }
 
 static values emptyHand(GameState *game, Player *drawingPlayer) {
-    publishEvent(&g_eventStream,
-                 (Event){.eventType = EMPTY_HAND, .actorId = drawingPlayer->playerNum});
+    publishEvent(
+        &g_eventStream, (Event){.eventType = EMPTY_HAND, .actorId = drawingPlayer->playerNum});
 
     Card card;
     card = drawCard(game, drawingPlayer);
@@ -208,9 +212,10 @@ static void requestCard(GameState *game, Player *actor, Player *target) {
     }
 
     // GO FISH
-    publishEvent(&g_eventStream, (Event){
-                                     .eventType = GO_FISH,
-                                 });
+    publishEvent(&g_eventStream,
+        (Event){
+            .eventType = GO_FISH,
+        });
     if (!stackIsEmpty(&game->drawPile)) {
         drawCard(game, actor);
         checkPlayersForBook(game);
@@ -242,10 +247,11 @@ void gameInit() {
 static void gameplayLoop(GameState *game) {
     while (!game->winCondition.hasWon) {
         for (int playerIndex = 0; playerIndex < game->playerCount; playerIndex++) {
-            publishEvent(&g_eventStream, (Event){
-                                             .eventType = TURN_STARTED,
-                                             .actorId = game->players[playerIndex].playerNum,
-                                         });
+            publishEvent(&g_eventStream,
+                (Event){
+                    .eventType = TURN_STARTED,
+                    .actorId = game->players[playerIndex].playerNum,
+                });
 
             checkPlayersForBook(game);
             tui_displayTurn(game);

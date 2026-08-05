@@ -8,8 +8,19 @@ const char *suit_names[] = {"Clubs", "Diamonds", "Hearts", "Spades"};
 
 const char *suit_shorthand[] = {"C", "D", "H", "S"};
 
-const char *value_names[] = {"Two",  "Three", "Four", "Five",  "Six",  "Seven", "Eight",
-                             "Nine", "Ten",   "Jack", "Queen", "King", "Ace"};
+const char *value_names[] = {"Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
+    "Ten",
+    "Jack",
+    "Queen",
+    "King",
+    "Ace"};
 
 const char *value_shorthand[] = {"2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A"};
 
