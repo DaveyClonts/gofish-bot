@@ -2,6 +2,7 @@
 #include "deck.h"
 #include "game.h"
 #include "player.h"
+#include "event_stream.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -97,8 +98,12 @@ static void displayHands(GameState *game) {
 }
 
 static void displayLastEvent(GameState *game) {
-    printf("%s", game->eventLog);
-    game->eventLog[0] = '\0';
+    //if event is display turn, clear past log prints
+    //else print next
+
+    //prob need to print a slice of the array
+    //need to find last display turn and then save its index
+
 }
 
 void tui_displayTurn(GameState *game) {

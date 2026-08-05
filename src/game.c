@@ -7,10 +7,10 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
 GameState g_game;
-EventStream g_eventStream;
+
+
 
 static void deckToStack(GameState *game, Card deck[]) {
     stackInit(&game->drawPile);
@@ -28,7 +28,7 @@ static Card drawCard(GameState *game, Player *player) {
         drawnCard = player->hand[player->handSize];
         player->handSize++;
 
-        publishEvent(&g_eventStream,
+        publishEvent(&g_game.stream,
             (Event){
                 .eventType = CARD_DRAWN,
                 .actorId = player->playerNum,
@@ -82,7 +82,7 @@ static void checkHandForBook(GameState *game, Player *player) {
 
         if (possibleValues[player->hand[i].value] == 4) {
             values bookValue = player->hand[i].value;
-            publishEvent(&g_eventStream,
+            publishEvent(&g_game.stream,
                 (Event){
                     .eventType = BOOK_FOUND,
                     .actorId = player->playerNum,
@@ -122,7 +122,7 @@ static bool checkForWin(GameState *game) {
             game->winCondition.hasWon = true;
             game->winCondition.winnerId = i;
 
-            publishEvent(&g_eventStream,
+            publishEvent(&g_game.stream,
                 (Event){
                     .eventType = GAME_WON,
                     .actorId = game->players[i].playerNum,
@@ -156,7 +156,7 @@ static bool checkHandForCard(Player *actor, Player *target, values targetedValue
     bool gotCard = false;
     for (int i = target->handSize - 1; i >= 0; i--) {
         if (target->hand[i].value == targetedValue) {
-            publishEvent(&g_eventStream,
+            publishEvent(&g_game.stream,
                 (Event){.eventType = CARD_TRANSFERRED,
                     .actorId = actor->playerNum,
                     .value = targetedValue,
@@ -171,7 +171,7 @@ static bool checkHandForCard(Player *actor, Player *target, values targetedValue
 
 static values emptyHand(GameState *game, Player *drawingPlayer) {
     publishEvent(
-        &g_eventStream, (Event){.eventType = EMPTY_HAND, .actorId = drawingPlayer->playerNum});
+        &g_game.stream, (Event){.eventType = EMPTY_HAND, .actorId = drawingPlayer->playerNum});
 
     Card card;
     card = drawCard(game, drawingPlayer);
@@ -186,7 +186,7 @@ static void requestCard(GameState *game, Player *actor, Player *target) {
         inputedValue = emptyHand(game, actor);
     } else {
         inputedValue = takeInput(actor);
-        publishEvent(&g_eventStream, (Event){.eventType = CARD_REQUESTED, .value = inputedValue});
+        publishEvent(&g_game.stream, (Event){.eventType = CARD_REQUESTED, .value = inputedValue});
     }
 
     // CHECK HAND FOR CARD
@@ -212,7 +212,7 @@ static void requestCard(GameState *game, Player *actor, Player *target) {
     }
 
     // GO FISH
-    publishEvent(&g_eventStream,
+    publishEvent(&g_game.stream,
         (Event){
             .eventType = GO_FISH,
         });
@@ -230,13 +230,12 @@ void gameInit() {
     g_game.sizeOfBooks = 0;
     g_game.winCondition.hasWon = false;
     g_game.playerCount = 2;
-    g_game.eventLog[0] = '\0';
 
     shuffleDeck(g_deck);
     deckToStack(&g_game, g_deck);
 
     initPlayers(&g_game);
-    eventStreamInit(&g_eventStream);
+    eventStreamInit(&g_game.stream);
 
     for (int i = 0; i < G_STARTING_HAND_SIZE; i++) {
         drawCard(&g_game, &g_game.players[0]);
@@ -247,7 +246,7 @@ void gameInit() {
 static void gameplayLoop(GameState *game) {
     while (!game->winCondition.hasWon) {
         for (int playerIndex = 0; playerIndex < game->playerCount; playerIndex++) {
-            publishEvent(&g_eventStream,
+            publishEvent(&g_game.stream,
                 (Event){
                     .eventType = TURN_STARTED,
                     .actorId = game->players[playerIndex].playerNum,
@@ -255,7 +254,6 @@ static void gameplayLoop(GameState *game) {
 
             checkPlayersForBook(game);
             tui_displayTurn(game);
-            printf("Player %d's turn\n", playerIndex + 1);
 
             // TEMPORARY SOLUTION FOR FINDING OTHER PLAYER FOR HAND CHECKS
             // NEEDS TO SCALE WITH MULTIPLE PLAYERS

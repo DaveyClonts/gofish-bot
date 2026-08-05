@@ -3,6 +3,7 @@
 #include "deck.h"
 #include "player.h"
 #include "stack.h"
+#include "event_stream.h"
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -26,7 +27,7 @@ typedef struct {
     int playerCount;
     Book books[13];
     int sizeOfBooks;
-    char eventLog[64];
+    EventStream stream;
 } GameState;
 
 void gameInit();

@@ -7,7 +7,7 @@
 static void logEvent(EventStream *stream, Event event) {
     switch (event.eventType) {
     case TURN_STARTED:
-        writeToLog(&stream->eventLog, "Player %d's turn: ", event.actorId);
+        writeToLog(&stream->eventLog, "Player %d's turn: ", (event.actorId + 1));
         break;
     case CARD_REQUESTED:
         writeToLog(&stream->eventLog, "Do you have any %ds?\n", event.value);
