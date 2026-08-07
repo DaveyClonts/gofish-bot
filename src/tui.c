@@ -98,12 +98,19 @@ static void displayHands(GameState *game) {
 }
 
 static void displayLastEvent(GameState *game) {
-    //if event is display turn, clear past log prints
-    //else print next
+    EventLog log = game->stream.eventLog;
 
-    //prob need to print a slice of the array
-    //need to find last display turn and then save its index
+    //realized my solution is crappy but i dont want to refactor
+    //proper solution is to have each event hold a string
+    //*facepalm*
+    for (int i = (int)log.length; i > 0; i--) {
+        
+        printf(log.log[i -1]);
 
+        if (strstr(log.log[i - 1], "turn") != NULL) {
+            break;
+        }
+    }
 }
 
 void tui_displayTurn(GameState *game) {

@@ -7,7 +7,7 @@
 static void logEvent(EventStream *stream, Event event) {
     switch (event.eventType) {
     case TURN_STARTED:
-        writeToLog(&stream->eventLog, "Player %d's turn: ", (event.actorId + 1));
+        writeToLog(&stream->eventLog, "Player %d's turn: \n", (event.actorId + 1));
         break;
     case CARD_REQUESTED:
         writeToLog(&stream->eventLog, "Do you have any %ds?\n", event.value);
@@ -23,7 +23,7 @@ static void logEvent(EventStream *stream, Event event) {
         writeToLog(&stream->eventLog, "Go fish!\n");
         break;
     case EMPTY_HAND:
-        writeToLog(&stream->eventLog, "Player %d has an empty hand", event.actorId);
+        writeToLog(&stream->eventLog, "Player %d has an empty hand\n", event.actorId);
         break;
     case CARD_DRAWN:
         writeToLog(&stream->eventLog, "Player %d draws a %d\n", event.actorId, event.value);
@@ -38,7 +38,7 @@ static void logEvent(EventStream *stream, Event event) {
         writeToLog(&stream->eventLog, "Game won by player %d!\n", event.actorId);
         break;
     default:
-        fprintf(stderr, "Error: unrecognized eventType");
+        fprintf(stderr, "Error: unrecognized eventType\n");
         exit(EXIT_FAILURE);
     }
 }
