@@ -3,7 +3,7 @@
 #include <stddef.h>
 
 typedef struct {
-    char *log;
+    char **log;
     size_t capacity;
     size_t length;
 } EventLog;

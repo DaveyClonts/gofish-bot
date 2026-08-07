@@ -6,14 +6,12 @@
 void eventLogInit(EventLog *log) {
     log->capacity = 64;
     log->length = 0;
-    log->log = malloc(log->capacity);
+    log->log = malloc(log->capacity * sizeof(*log->log));
 
     if (log->log == NULL) {
         fprintf(stderr, "Error: failed to allocate %zu bytes", log->capacity);
         exit(EXIT_FAILURE);
     }
-
-    log->log[0] = '\0';
 }
 
 void writeToLog(EventLog *log, const char *message, ...) {
@@ -27,34 +25,42 @@ void writeToLog(EventLog *log, const char *message, ...) {
 
     // returns number of chars needed to complete formatted result needs
     int messageLength = vsnprintf(NULL, 0, message, argumentsCopy);
+
     if (messageLength < 0) {
+        va_end(argumentsCopy);
         va_end(arguments);
         fprintf(stderr, "Error: vsnprintf failed");
         exit(EXIT_FAILURE);
     }
     va_end(argumentsCopy);
 
-    size_t requiredCapacity = log->length + (size_t)messageLength + 1;
-
-    if (requiredCapacity > log->capacity) {
-        size_t newCapacity = log->capacity;
-
-        newCapacity *= 2;
-        char *newLog = realloc(log->log, newCapacity);
+    if (log->length == log->capacity) {
+        size_t newCapcity = log->capacity * 2;
+        char **newLog = realloc(log->log, newCapcity * sizeof(*newLog));
 
         if (newLog == NULL) {
-            fprintf(stderr, "Error: failed to allocate new log");
+            va_end(arguments);
+            fprintf(stderr, "Error: new log realloc failed");
             exit(EXIT_FAILURE);
         }
 
         log->log = newLog;
-        log->capacity = newCapacity;
+        log->capacity = newCapcity;
+    }
+
+    size_t castedMessageSize = (size_t)messageLength + 1;
+    char *entry = malloc(castedMessageSize); //+1 for \0 character
+
+    if (entry == NULL) {
+        va_end(arguments);
+        fprintf(stderr, "Error: failed to allocate log entry");
+        exit(EXIT_FAILURE);
     }
 
     // write to log
-    vsnprintf(log->log + log->length, log->capacity - log->length, message, arguments);
-
+    vsnprintf(entry, castedMessageSize, message, arguments);
     va_end(arguments);
 
-    log->length += (size_t)messageLength;
+    log->log[log->length] = entry;
+    log->length++;
 }
