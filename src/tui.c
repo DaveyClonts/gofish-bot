@@ -1,8 +1,8 @@
 #include "tui.h"
 #include "deck.h"
+#include "event_stream.h"
 #include "game.h"
 #include "player.h"
-#include "event_stream.h"
 #include <ctype.h>
 #include <stdio.h>
 #include <string.h>
@@ -100,17 +100,26 @@ static void displayHands(GameState *game) {
 static void displayLastEvent(GameState *game) {
     EventLog log = game->stream.eventLog;
 
-    //realized my solution is crappy but i dont want to refactor
-    //proper solution is to have each event hold a string
+    // realized my solution is crappy but i dont want to refactor
+    // proper solution is to have each event hold a string
     //*facepalm*
     for (int i = (int)log.length; i > 0; i--) {
-        
-        printf(log.log[i -1]);
-
         if (strstr(log.log[i - 1], "turn") != NULL) {
+            for (size_t j = i - 1; j < log.length; j++) {
+                printf("%s", log.log[j]);
+            }
             break;
         }
     }
+}
+
+void tui_waitForKey() {
+    printf("\nPress Enter to continue...");
+    fflush(stdout); // flush clears in the buffer so it can take input
+
+    int character;
+    while ((character = getchar()) != '\n' && character != EOF)
+        ;
 }
 
 void tui_displayTurn(GameState *game) {

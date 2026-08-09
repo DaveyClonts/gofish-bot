@@ -10,6 +10,8 @@ void tui_startScreen();
 
 void tui_winScreen(GameState *game);
 
+void tui_waitForKey();
+
 void tui_displayTurn(GameState *game);
 
 bool tui_askForCard(Player *player, char playerInput[], int playerInputSize);

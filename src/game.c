@@ -10,8 +10,6 @@
 
 GameState g_game;
 
-
-
 static void deckToStack(GameState *game, Card deck[]) {
     stackInit(&game->drawPile);
 
@@ -204,6 +202,12 @@ static void requestCard(GameState *game, Player *actor, Player *target) {
         tui_displayTurn(game);
 
         values nextValue = takeInput(actor);
+        publishEvent(&game->stream,
+            (Event){
+                .eventType = CARD_REQUESTED,
+                .actorId = actor->playerNum,
+                .value = nextValue,
+            });
         if (checkHandForCard(actor, target, nextValue)) {
             gotCard = true;
         } else {
@@ -216,6 +220,7 @@ static void requestCard(GameState *game, Player *actor, Player *target) {
         (Event){
             .eventType = GO_FISH,
         });
+
     if (!stackIsEmpty(&game->drawPile)) {
         drawCard(game, actor);
         checkPlayersForBook(game);
@@ -224,6 +229,9 @@ static void requestCard(GameState *game, Player *actor, Player *target) {
             return;
         }
     }
+
+    tui_displayTurn(game);
+    tui_waitForKey();
 }
 
 void gameInit() {

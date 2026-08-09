@@ -7,35 +7,38 @@
 static void logEvent(EventStream *stream, Event event) {
     switch (event.eventType) {
     case TURN_STARTED:
-        writeToLog(&stream->eventLog, "Player %d's turn: \n", (event.actorId + 1));
+        writeToLog(&stream->eventLog, "Player %d's turn: \n", event.actorId + 1);
         break;
     case CARD_REQUESTED:
-        writeToLog(&stream->eventLog, "Do you have any %ds?\n", event.value);
+        writeToLog(&stream->eventLog, "Do you have any %ss?\n", valueToShorthand(event.value));
         break;
     case CARD_TRANSFERRED:
         writeToLog(&stream->eventLog,
-            "Player %d transferred a %d card to player %d\n",
-            event.actorId,
-            event.value,
-            event.targetId);
+            "Player %d transferred a %s card to player %d\n",
+            event.targetId + 1,
+            valueToShorthand(event.value),
+            event.actorId + 1);
         break;
     case GO_FISH:
         writeToLog(&stream->eventLog, "Go fish!\n");
         break;
     case EMPTY_HAND:
-        writeToLog(&stream->eventLog, "Player %d has an empty hand\n", event.actorId);
+        writeToLog(&stream->eventLog, "Player %d has an empty hand\n", event.actorId + 1);
         break;
     case CARD_DRAWN:
-        writeToLog(&stream->eventLog, "Player %d draws a %d\n", event.actorId, event.value);
+        writeToLog(&stream->eventLog,
+            "Player %d draws a %s\n",
+            event.actorId + 1,
+            valueToShorthand(event.value));
         break;
     case BOOK_FOUND:
         writeToLog(&stream->eventLog,
-            "Book found by player %d for the %d card!\n",
-            event.actorId,
-            event.value);
+            "Book found by player %d for the %s card!\n",
+            event.actorId + 1,
+            valueToShorthand(event.value));
         break;
     case GAME_WON:
-        writeToLog(&stream->eventLog, "Game won by player %d!\n", event.actorId);
+        writeToLog(&stream->eventLog, "Game won by player %d!\n", event.actorId + 1);
         break;
     default:
         fprintf(stderr, "Error: unrecognized eventType\n");
