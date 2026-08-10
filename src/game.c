@@ -184,7 +184,12 @@ static void requestCard(GameState *game, Player *actor, Player *target) {
         inputedValue = emptyHand(game, actor);
     } else {
         inputedValue = takeInput(actor);
-        publishEvent(&g_game.stream, (Event){.eventType = CARD_REQUESTED, .value = inputedValue});
+        publishEvent(&g_game.stream,
+            (Event){
+                .eventType = CARD_REQUESTED,
+                .value = inputedValue,
+                .actorId = actor->playerNum,
+            });
     }
 
     // CHECK HAND FOR CARD

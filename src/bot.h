@@ -1,22 +1,30 @@
 #ifndef BOT_H
 #define BOT_H
 #include "deck.h"
+#include "game.h"
+#include <stdbool.h>
 
+// certianCards: cards that certain to be in targetId's hand
 // Certain: A player just asked for Queens, so they currently have a Queen.
-// Strong: A player received two Queens and has not completed the book.
-// Weak: A player said “Go Fish” several turns ago, but may have drawn a Queen since then.
-typedef enum { CERTAIN, STRONG, WEAK } certaintiy;
-
 typedef struct {
-    Card card;
-    certaintiy certaintiy;
+    values cardValue;
     int targetId;
-} MemoryCard;
+} CertainCard;
 
 typedef struct {
-    MemoryCard *remeberedCards;
+    CertainCard *certainCards;
     int size;
     int capacity;
 } Memory;
+
+typedef struct {
+    int botId;
+    Memory memory;
+    int processedMemory;
+} BotState;
+
+void initBot(BotState *bot, int botId);
+
+void doTurn(GameState *game);
 
 #endif
