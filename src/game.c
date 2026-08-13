@@ -132,12 +132,15 @@ static bool checkForWin(GameState *game) {
 }
 
 static void initPlayers(GameState *game) {
+    game->players[0].isUser = true; // forced for now
 
     for (int i = 0; i < game->playerCount; i++) {
         player_initPlayer(&game->players[i], i);
-    }
 
-    game->players[0].isUser = true; // forced for now
+        if (game->players[i].isUser == false) {
+            initBot(&game->botManager, game->players[i].playerNum);
+        }
+    }
 }
 
 static values takeInput(Player *player) {
@@ -265,19 +268,23 @@ static void gameplayLoop(GameState *game) {
                     .actorId = game->players[playerIndex].playerNum,
                 });
 
-            checkPlayersForBook(game);
-            tui_displayTurn(game);
+            if (game->players[playerIndex].isUser) {
+                checkPlayersForBook(game);
+                tui_displayTurn(game);
 
-            // TEMPORARY SOLUTION FOR FINDING OTHER PLAYER FOR HAND CHECKS
-            // NEEDS TO SCALE WITH MULTIPLE PLAYERS
-            int otherPlayerId;
-            if (playerIndex == 0) {
-                otherPlayerId = 1;
+                // TEMPORARY SOLUTION FOR FINDING OTHER PLAYER FOR HAND CHECKS
+                // NEEDS TO SCALE WITH MULTIPLE PLAYERS
+                int otherPlayerId;
+                if (playerIndex == 0) {
+                    otherPlayerId = 1;
+                } else {
+                    otherPlayerId = 0;
+                }
+
+                requestCard(&g_game, &game->players[playerIndex], &game->players[otherPlayerId]);
             } else {
-                otherPlayerId = 0;
+                doTurn(game);
             }
-
-            requestCard(&g_game, &game->players[playerIndex], &game->players[otherPlayerId]);
         }
     }
 }

@@ -1,7 +1,6 @@
 #ifndef BOT_H
 #define BOT_H
 #include "deck.h"
-#include "game.h"
 #include <stdbool.h>
 
 // certianCards: cards that certain to be in targetId's hand
@@ -18,12 +17,20 @@ typedef struct {
 } Memory;
 
 typedef struct {
-    int botId;
+    int playerId;
     Memory memory;
     int processedMemory;
 } BotState;
 
-void initBot(BotState *bot, int botId);
+typedef struct {
+    BotState *bots;
+    int size;
+    int capacity;
+} BotManager;
+
+typedef struct GameState GameState;
+
+void initBot(BotManager *bots, int playerId);
 
 void doTurn(GameState *game);
 

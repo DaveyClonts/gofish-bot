@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-BotState g_bot;
+BotState g_bots; // this will prob actually be in game
 
 static void checkMemoryCapacity(Memory *memory) {
     if (memory->size >= memory->capacity) {
@@ -21,10 +21,25 @@ static void checkMemoryCapacity(Memory *memory) {
     }
 }
 
+static void checkBotManagerCapacity(BotManager *bots) {
+    if (bots->size >= bots->capacity) {
+        bots->capacity += 1;
+
+        BotState *newRealloc = realloc(bots->bots, bots->capacity * sizeof(BotState));
+
+        if (newRealloc == NULL) {
+            fprintf(stderr, "Error: bot size realloc failed");
+            exit(EXIT_FAILURE);
+        }
+
+        bots->bots = newRealloc;
+    }
+}
+
 // this func assumes that event has an actorId and value
 static void insertMemory(Event event) {
 
-    // checeks that memory doesnt already exist
+    // checks that memory doesnt already exist
     for (int i = 0; i < g_bot.memory.size; i++) {
         if (g_bot.memory.certainCards[i].targetId == event.actorId &&
             g_bot.memory.certainCards[i].cardValue == event.value) {
@@ -75,18 +90,25 @@ static void loadMemory(EventStream *stream) {
     g_bot.processedMemory = stream->size;
 }
 
-void initBot(BotState *bot, int botId) {
-    bot->botId = botId;
-    bot->processedMemory = 0;
-    bot->memory.size = 0;
-    bot->memory.capacity = 8;
-    CertainCard *newMalloc = malloc(bot->memory.capacity * sizeof(CertainCard));
+void initBot(BotManager *bots, int playerId) {
+
+    BotState newBot;
+    newBot.playerId = playerId;
+    newBot.processedMemory = 0;
+    newBot.memory.size = 0;
+    newBot.memory.capacity = 8;
+    CertainCard *newMalloc = malloc(newBot.memory.capacity * sizeof(CertainCard));
 
     if (newMalloc == NULL) {
         fprintf(stderr, "Error: certain cards malloc failed");
+        exit(EXIT_FAILURE);
     }
 
-    bot->memory.certainCards = newMalloc;
+    newBot.memory.certainCards = newMalloc;
+
+    checkBotManagerCapacity(bots);
+    bots->size++;
+    bots->bots[bots->size] = newBot;
 }
 
 void doTurn(GameState *game) {
@@ -103,7 +125,7 @@ void doTurn(GameState *game) {
 
         for (int j = 0; j < bot.handSize; j++) {
             if (g_bot.memory.certainCards[i].cardValue == bot.hand[j].value) {
-                //request that card
+                // request that card
                 return;
             }
         }

@@ -4,6 +4,7 @@
 #include "event_stream.h"
 #include "player.h"
 #include "stack.h"
+#include "bot.h"
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -20,11 +21,12 @@ typedef struct {
     int winnerId;
 } Win;
 
-typedef struct {
+typedef struct GameState {
     Win winCondition;
     StackCard drawPile;
     Player players[6];
     int playerCount;
+    BotManager botManager;
     Book books[13];
     int sizeOfBooks;
     EventStream stream;
