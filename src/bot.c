@@ -1,10 +1,9 @@
 #include "bot.h"
 #include "event_stream.h"
 #include "game.h"
+#include "tui.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-BotState g_bots; // this will prob actually be in game
 
 static void checkMemoryCapacity(Memory *memory) {
     if (memory->size >= memory->capacity) {
@@ -23,7 +22,7 @@ static void checkMemoryCapacity(Memory *memory) {
 
 static void checkBotManagerCapacity(BotManager *bots) {
     if (bots->size >= bots->capacity) {
-        bots->capacity += 1;
+        bots->capacity *= 2;
 
         BotState *newRealloc = realloc(bots->bots, bots->capacity * sizeof(BotState));
 
@@ -37,12 +36,12 @@ static void checkBotManagerCapacity(BotManager *bots) {
 }
 
 // this func assumes that event has an actorId and value
-static void insertMemory(Event event) {
+static void insertMemory(BotState *bot, Event event) {
 
     // checks that memory doesnt already exist
-    for (int i = 0; i < g_bot.memory.size; i++) {
-        if (g_bot.memory.certainCards[i].targetId == event.actorId &&
-            g_bot.memory.certainCards[i].cardValue == event.value) {
+    for (int i = 0; i < bot->memory.size; i++) {
+        if (bot->memory.certainCards[i].targetId == event.actorId &&
+            bot->memory.certainCards[i].cardValue == event.value) {
             return;
         }
     }
@@ -51,48 +50,55 @@ static void insertMemory(Event event) {
     newCard.cardValue = event.value;
     newCard.targetId = event.actorId;
 
-    checkMemoryCapacity(&g_bot.memory);
-    g_bot.memory.certainCards[g_bot.memory.size] = newCard;
-    g_bot.memory.size++;
+    checkMemoryCapacity(&bot->memory);
+    bot->memory.certainCards[bot->memory.size] = newCard;
+    bot->memory.size++;
 }
 
 // this func assumes that event has a targetId and value
-static void deleteMemory(int targetId, values value) {
-    for (int i = 0; i < g_bot.memory.size; i++) {
-        if (g_bot.memory.certainCards[i].targetId == targetId &&
-            g_bot.memory.certainCards[i].cardValue == value) {
-            for (int j = i; j < g_bot.memory.size - 1; j++) {
-                g_bot.memory.certainCards[j] =
-                    g_bot.memory.certainCards[j + 1]; // shifts array to left deleting given index
+static void deleteMemory(BotState *bot, int targetId, values value) {
+    for (int i = 0; i < bot->memory.size; i++) {
+        if (bot->memory.certainCards[i].targetId == targetId &&
+            bot->memory.certainCards[i].cardValue == value) {
+            for (int j = i; j < bot->memory.size - 1; j++) {
+                bot->memory.certainCards[j] =
+                    bot->memory.certainCards[j + 1]; // shifts array to left deleting given index
             }
 
-            g_bot.memory.size--;
+            bot->memory.size--;
             return;
         }
     }
 }
 
-static void loadMemory(EventStream *stream) {
-    // loop through stream
-    // find certain cards
-    // update certain cards if transfered
-
-    for (int i = g_bot.processedMemory; i < stream->size; i++) {
+static void loadMemory(BotState *bot, EventStream *stream) {
+    for (int i = bot->processedMemory; i < stream->size; i++) {
         if (stream->events[i].eventType == CARD_REQUESTED) {
-            insertMemory(stream->events[i]);
+            insertMemory(bot, stream->events[i]);
         } else if (stream->events[i].eventType == CARD_TRANSFERRED) {
-            deleteMemory(stream->events[i].targetId, stream->events[i].value);
+            deleteMemory(bot, stream->events[i].targetId, stream->events[i].value);
         } else if (stream->events[i].eventType == BOOK_FOUND) {
-            deleteMemory(stream->events[i].actorId, stream->events[i].value);
+            deleteMemory(bot, stream->events[i].actorId, stream->events[i].value);
         }
     }
 
-    g_bot.processedMemory = stream->size;
+    bot->processedMemory = stream->size;
+}
+
+void initBotManager(BotManager *bots) {
+    bots->size = 0;
+    bots->capacity = 1;
+    bots->bots = malloc(bots->capacity * sizeof(BotState));
+
+    if (bots->bots == NULL) {
+        fprintf(stderr, "Error: bot manager malloc failed");
+        exit(EXIT_FAILURE);
+    }
 }
 
 void initBot(BotManager *bots, int playerId) {
 
-    BotState newBot;
+    BotState newBot = {0};
     newBot.playerId = playerId;
     newBot.processedMemory = 0;
     newBot.memory.size = 0;
@@ -107,25 +113,67 @@ void initBot(BotManager *bots, int playerId) {
     newBot.memory.certainCards = newMalloc;
 
     checkBotManagerCapacity(bots);
-    bots->size++;
     bots->bots[bots->size] = newBot;
+    bots->size++;
 }
 
-void doTurn(GameState *game) {
-    loadMemory(&game->stream);
-    Player bot = game->players[g_bot.botId];
+BotState *getBot(BotManager *bots, int playerId) {
+    for (int i = 0; i < bots->size; i++) {
+        if (bots->bots[i].playerId == playerId) {
+            return &bots->bots[i];
+        }
+    }
+
+    return NULL;
+}
+
+static bool botAskForCard(GameState *game, int actorId, int targetId, values requestedValue) {
+    Player *asker = &game->players[actorId];
+    Player *target = &game->players[targetId];
+
+    publishEvent(&game->stream,
+        (Event){
+            .eventType = CARD_REQUESTED,
+            .value = requestedValue,
+            .actorId = asker->playerNum,
+        });
+
+    if (checkHandForCard(asker, target, requestedValue)) {
+        checkPlayersForBook(game);
+        if (checkForWin(game)) {
+            tui_winScreen(game);
+        }
+        tui_displayTurn(game);
+        tui_waitForKey();
+        return true;
+    } else {
+        tui_displayTurn(game);
+        tui_waitForKey();
+        return false;
+    }
+}
+
+void doTurn(BotState *bot, GameState *game) {
+    loadMemory(bot, &game->stream);
+    Player *player = &game->players[bot->playerId];
+
+    if (player->handSize == 0) {
+        // empty hand logic
+    }
 
     // if u have certain cards in hand, ask for them
-    for (int i = 0; i < g_bot.memory.size; i++) {
+    for (int i = 0; i < bot->memory.size; i++) {
 
         // never ask yourself
-        if (g_bot.memory.certainCards[i].targetId == g_bot.botId) {
+        if (bot->memory.certainCards[i].targetId == bot->playerId) {
             continue;
         }
 
-        for (int j = 0; j < bot.handSize; j++) {
-            if (g_bot.memory.certainCards[i].cardValue == bot.hand[j].value) {
-                // request that card
+        for (int j = 0; j < player->handSize; j++) {
+            if (bot->memory.certainCards[i].cardValue == player->hand[j].value) {
+                CertainCard cardToRequest = bot->memory.certainCards[i];
+                botAskForCard(
+                    game, player->playerNum, cardToRequest.targetId, cardToRequest.cardValue);
                 return;
             }
         }
@@ -134,4 +182,7 @@ void doTurn(GameState *game) {
     // else ask for the card you have either
     // 1. not asked for yet at paticular target
     // 2. been the longest since you asked for it
+
+    // TEMP LOGIC, WILL WRITE LOGIC THAT DOES THE ABOVE
+    botAskForCard(game, player->playerNum, 1, player->hand[0].value);
 }

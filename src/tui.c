@@ -93,7 +93,7 @@ static void displayHands(GameState *game) {
     tui_newline(3);
 
     printf("Your Hand:");
-    printCardsInHand(&game->players[usersId], true);
+    printCardsInHand(&game->players[usersId], false);
     tui_newline(1);
 }
 

@@ -30,8 +30,12 @@ typedef struct {
 
 typedef struct GameState GameState;
 
+void initBotManager(BotManager *bots);
+
 void initBot(BotManager *bots, int playerId);
 
-void doTurn(GameState *game);
+BotState *getBot(BotManager *bots, int playerId);
+
+void doTurn(BotState *bot, GameState *game);
 
 #endif

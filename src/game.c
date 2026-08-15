@@ -93,13 +93,13 @@ static void checkHandForBook(GameState *game, Player *player) {
     }
 }
 
-static void checkPlayersForBook(GameState *game) {
+void checkPlayersForBook(GameState *game) {
     for (int i = 0; i < game->playerCount; i++) {
         checkHandForBook(game, &game->players[i]);
     }
 }
 
-static bool checkForWin(GameState *game) {
+bool checkForWin(GameState *game) {
     int bookCount[game->playerCount];
     for (int i = 0; i < game->playerCount; i++) {
         bookCount[i] = 0;
@@ -153,7 +153,8 @@ static values takeInput(Player *player) {
     return inputedValue;
 }
 
-static bool checkHandForCard(Player *actor, Player *target, values targetedValue) {
+// handles card transfer as well
+bool checkHandForCard(Player *actor, Player *target, values targetedValue) {
     bool gotCard = false;
     for (int i = target->handSize - 1; i >= 0; i--) {
         if (target->hand[i].value == targetedValue) {
@@ -171,8 +172,11 @@ static bool checkHandForCard(Player *actor, Player *target, values targetedValue
 }
 
 static values emptyHand(GameState *game, Player *drawingPlayer) {
-    publishEvent(
-        &g_game.stream, (Event){.eventType = EMPTY_HAND, .actorId = drawingPlayer->playerNum});
+    publishEvent(&g_game.stream,
+        (Event){
+            .eventType = EMPTY_HAND,
+            .actorId = drawingPlayer->playerNum,
+        });
 
     Card card;
     card = drawCard(game, drawingPlayer);
@@ -246,6 +250,7 @@ void gameInit() {
     g_game.sizeOfBooks = 0;
     g_game.winCondition.hasWon = false;
     g_game.playerCount = 2;
+    initBotManager(&g_game.botManager);
 
     shuffleDeck(g_deck);
     deckToStack(&g_game, g_deck);
@@ -283,7 +288,14 @@ static void gameplayLoop(GameState *game) {
 
                 requestCard(&g_game, &game->players[playerIndex], &game->players[otherPlayerId]);
             } else {
-                doTurn(game);
+                BotState *bot = getBot(&game->botManager, game->players[playerIndex].playerNum);
+                if (bot == NULL) {
+                    fprintf(stderr,
+                        "Error: no bot state for player %d\n",
+                        game->players[playerIndex].playerNum);
+                    exit(EXIT_FAILURE);
+                }
+                doTurn(bot, game);
             }
         }
     }

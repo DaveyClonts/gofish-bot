@@ -1,10 +1,10 @@
 #ifndef GAME_H
 #define GAME_H
+#include "bot.h"
 #include "deck.h"
 #include "event_stream.h"
 #include "player.h"
 #include "stack.h"
-#include "bot.h"
 #include <stdbool.h>
 #include <stddef.h>
 
@@ -31,6 +31,12 @@ typedef struct GameState {
     int sizeOfBooks;
     EventStream stream;
 } GameState;
+
+bool checkHandForCard(Player *actor, Player *target, values targetedValue);
+
+void checkPlayersForBook(GameState *game);
+
+bool checkForWin(GameState *game);
 
 void gameInit();
 

@@ -21,6 +21,4 @@ void player_organizeHand(Player *player);
 
 void player_giveCardToPlayer(Player *giver, Player *reciever, int cardIndex);
 
-bool player_checkHandForCard(Player *target, Player *asker, values targetedValue);
-
 #endif
