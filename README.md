@@ -11,24 +11,29 @@ Generated with `make stats`.
 
 | Metric | Count |
 | --- | ---: |
-| C source/header files | 12 |
-| C source/header lines | 808 |
-| Lines including makefile | 864 |
+| C source/header files | 17 |
+| C source/header lines | 1399 |
+| Lines including makefile | 1455 |
 
 | File | Lines |
 | --- | ---: |
-| `src/bot.c` | 0 |
-| `src/deck.c` | 150 |
-| `src/deck.h` | 46 |
-| `src/game.c` | 219 |
-| `src/game.h` | 35 |
+| `src/bot.c` | 203 |
+| `src/bot.h` | 41 |
+| `src/deck.c` | 161 |
+| `src/deck.h` | 47 |
+| `src/event_log.c` | 65 |
+| `src/event_log.h` | 15 |
+| `src/event_stream.c` | 80 |
+| `src/event_stream.h` | 37 |
+| `src/game.c` | 321 |
+| `src/game.h` | 47 |
 | `src/main.c` | 12 |
-| `src/player.c` | 78 |
-| `src/player.h` | 25 |
-| `src/stack.c` | 28 |
-| `src/stack.h` | 17 |
-| `src/tui.c` | 182 |
-| `src/tui.h` | 16 |
+| `src/player.c` | 66 |
+| `src/player.h` | 24 |
+| `src/stack.c` | 37 |
+| `src/stack.h` | 20 |
+| `src/tui.c` | 204 |
+| `src/tui.h` | 19 |
 | `makefile` | 56 |
 <!-- CODEBASE-STATS:END -->
 
