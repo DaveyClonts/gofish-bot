@@ -137,7 +137,7 @@ static bool botAskForCard(GameState *game, int actorId, int targetId, values req
             .eventType = CARD_REQUESTED,
             .value = requestedValue,
             .actorId = asker->playerNum,
-    });
+        });
 
     if (checkHandForCard(asker, target, requestedValue)) {
         checkPlayersForBook(game);
