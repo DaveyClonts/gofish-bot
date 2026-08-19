@@ -170,34 +170,47 @@ static bool botAskForCard(GameState *game, int actorId, int targetId, values req
 void doTurn(BotState *bot, GameState *game) {
     Player *botPlayer = &game->players[bot->playerId];
 
-    if (botPlayer->handSize == 0) {
-        // TODO: empty hand logic
-    }
-
-    while (!game->winCondition.hasWon && botPlayer->handSize > 0) {
+    while (!game->winCondition.hasWon) {
         loadMemory(bot, &game->stream);
+        
+        if (botPlayer->handSize == 0) {
+            publishEvent(&game->stream,
+                (Event){
+                    .eventType = EMPTY_HAND,
+                    .actorId = bot->playerId,
+                });
+                
+            if (stackIsEmpty(&game->drawPile)) {
+                    return;
+                }
+
+            drawCard(game, &game->players[bot->playerId]);
+        }
+        
         int targetId = 0;
         values requestedValue = botPlayer->hand[0].value;
         bool foundCertainCard = false;
 
-        // If the bot remembers a matching card, prefer that request.
-        for (int i = 0; i < bot->memory.size && !foundCertainCard; i++) {
-            if (bot->memory.certainCards[i].targetId == bot->playerId) {
-                continue;
-            }
+        if (botPlayer->handSize > 0) {
+            // If the bot has a matching card, request that
+            for (int i = 0; i < bot->memory.size && !foundCertainCard; i++) {
+                if (bot->memory.certainCards[i].targetId == bot->playerId) {
+                    continue;
+                }
 
-            for (int j = 0; j < botPlayer->handSize; j++) {
-                if (bot->memory.certainCards[i].cardValue == botPlayer->hand[j].value) {
-                    targetId = bot->memory.certainCards[i].targetId;
-                    requestedValue = bot->memory.certainCards[i].cardValue;
-                    foundCertainCard = true;
-                    break;
+                for (int j = 0; j < botPlayer->handSize; j++) {
+                    if (bot->memory.certainCards[i].cardValue == botPlayer->hand[j].value) {
+                        targetId = bot->memory.certainCards[i].targetId;
+                        requestedValue = bot->memory.certainCards[i].cardValue;
+                        foundCertainCard = true;
+                        break;
+                    }
                 }
             }
-        }
 
-        if (!botAskForCard(game, botPlayer->playerNum, targetId, requestedValue)) {
-            return;
+            if (!botAskForCard(game, botPlayer->playerNum, targetId, requestedValue)) {
+                return;
+            }
         }
     }
 }
