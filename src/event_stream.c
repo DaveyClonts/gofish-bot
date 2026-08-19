@@ -26,10 +26,15 @@ static void logEvent(EventStream *stream, Event event) {
         writeToLog(&stream->eventLog, "Player %d has an empty hand\n", event.actorId + 1);
         break;
     case CARD_DRAWN:
-        writeToLog(&stream->eventLog,
-            "Player %d draws a %s\n",
-            event.actorId + 1,
-            valueToShorthand(event.value));
+
+        if (event.hideValue) {
+            writeToLog(&stream->eventLog, "Player %d drew a card\n", event.actorId + 1);
+        } else {
+            writeToLog(&stream->eventLog,
+                "Player %d draws a %s\n",
+                event.actorId + 1,
+                valueToShorthand(event.value));
+        }
         break;
     case BOOK_FOUND:
         writeToLog(&stream->eventLog,

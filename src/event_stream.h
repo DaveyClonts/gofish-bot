@@ -2,6 +2,7 @@
 #define EVENT_STREAM_H
 #include "deck.h"
 #include "event_log.h"
+#include <stdbool.h>
 
 typedef enum {
     TURN_STARTED,
@@ -19,6 +20,7 @@ typedef struct {
     int actorId;
     int targetId;
     values value;
+    bool hideValue;
 } Event;
 
 typedef struct {

@@ -26,12 +26,22 @@ Card drawCard(GameState *game, Player *player) {
         drawnCard = player->hand[player->handSize];
         player->handSize++;
 
-        publishEvent(&g_game.stream,
-            (Event){
-                .eventType = CARD_DRAWN,
-                .actorId = player->playerNum,
-                .value = drawnCard.value,
-            });
+        if (player->isUser) {
+            publishEvent(&g_game.stream,
+                (Event){
+                    .eventType = CARD_DRAWN,
+                    .actorId = player->playerNum,
+                    .value = drawnCard.value,
+                });
+        } else {
+            publishEvent(&g_game.stream,
+                (Event){
+                    .eventType = CARD_DRAWN,
+                    .actorId = player->playerNum,
+                    .value = drawnCard.value,
+                    .hideValue = true,
+                });
+        }
     }
 
     return drawnCard;
