@@ -18,7 +18,7 @@ static void deckToStack(GameState *game, Card deck[]) {
     }
 }
 
-static Card drawCard(GameState *game, Player *player) {
+Card drawCard(GameState *game, Player *player) {
     player_checkHandCapicity(player);
 
     Card drawnCard;

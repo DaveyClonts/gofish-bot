@@ -1,6 +1,7 @@
 #include "bot.h"
 #include "event_stream.h"
 #include "game.h"
+#include "stack.h"
 #include "tui.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -136,7 +137,7 @@ static bool botAskForCard(GameState *game, int actorId, int targetId, values req
             .eventType = CARD_REQUESTED,
             .value = requestedValue,
             .actorId = asker->playerNum,
-        });
+    });
 
     if (checkHandForCard(asker, target, requestedValue)) {
         checkPlayersForBook(game);
@@ -146,43 +147,57 @@ static bool botAskForCard(GameState *game, int actorId, int targetId, values req
         tui_displayTurn(game);
         tui_waitForKey();
         return true;
-    } else {
-        tui_displayTurn(game);
-        tui_waitForKey();
-        return false;
     }
+
+    publishEvent(&game->stream,
+        (Event){
+            .eventType = GO_FISH,
+        });
+
+    if (!stackIsEmpty(&game->drawPile)) {
+        drawCard(game, asker);
+        checkPlayersForBook(game);
+        if (checkForWin(game)) {
+            tui_winScreen(game);
+        }
+    }
+
+    tui_displayTurn(game);
+    tui_waitForKey();
+    return false;
 }
 
 void doTurn(BotState *bot, GameState *game) {
-    loadMemory(bot, &game->stream);
-    Player *player = &game->players[bot->playerId];
+    Player *botPlayer = &game->players[bot->playerId];
 
-    if (player->handSize == 0) {
-        // empty hand logic
+    if (botPlayer->handSize == 0) {
+        // TODO: empty hand logic
     }
 
-    // if u have certain cards in hand, ask for them
-    for (int i = 0; i < bot->memory.size; i++) {
+    while (!game->winCondition.hasWon && botPlayer->handSize > 0) {
+        loadMemory(bot, &game->stream);
+        int targetId = 0;
+        values requestedValue = botPlayer->hand[0].value;
+        bool foundCertainCard = false;
 
-        // never ask yourself
-        if (bot->memory.certainCards[i].targetId == bot->playerId) {
-            continue;
-        }
+        // If the bot remembers a matching card, prefer that request.
+        for (int i = 0; i < bot->memory.size && !foundCertainCard; i++) {
+            if (bot->memory.certainCards[i].targetId == bot->playerId) {
+                continue;
+            }
 
-        for (int j = 0; j < player->handSize; j++) {
-            if (bot->memory.certainCards[i].cardValue == player->hand[j].value) {
-                CertainCard cardToRequest = bot->memory.certainCards[i];
-                botAskForCard(
-                    game, player->playerNum, cardToRequest.targetId, cardToRequest.cardValue);
-                return;
+            for (int j = 0; j < botPlayer->handSize; j++) {
+                if (bot->memory.certainCards[i].cardValue == botPlayer->hand[j].value) {
+                    targetId = bot->memory.certainCards[i].targetId;
+                    requestedValue = bot->memory.certainCards[i].cardValue;
+                    foundCertainCard = true;
+                    break;
+                }
             }
         }
+
+        if (!botAskForCard(game, botPlayer->playerNum, targetId, requestedValue)) {
+            return;
+        }
     }
-
-    // else ask for the card you have either
-    // 1. not asked for yet at paticular target
-    // 2. been the longest since you asked for it
-
-    // TEMP LOGIC, WILL WRITE LOGIC THAT DOES THE ABOVE
-    botAskForCard(game, player->playerNum, 1, player->hand[0].value);
 }

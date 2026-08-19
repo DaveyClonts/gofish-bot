@@ -32,6 +32,8 @@ typedef struct GameState {
     EventStream stream;
 } GameState;
 
+Card drawCard(GameState *game, Player *player);
+
 bool checkHandForCard(Player *actor, Player *target, values targetedValue);
 
 void checkPlayersForBook(GameState *game);
