@@ -17,9 +17,15 @@ typedef struct {
 } Memory;
 
 typedef struct {
+    int fallbackTargetId;
+    int fallBackCardIndex;
+} FallbackMemory;
+
+typedef struct {
     int playerId;
     Memory memory;
     int processedMemory;
+    FallbackMemory fallbackMemory;
 } BotState;
 
 typedef struct {

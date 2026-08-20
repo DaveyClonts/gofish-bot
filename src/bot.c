@@ -172,21 +172,21 @@ void doTurn(BotState *bot, GameState *game) {
 
     while (!game->winCondition.hasWon) {
         loadMemory(bot, &game->stream);
-        
+
         if (botPlayer->handSize == 0) {
             publishEvent(&game->stream,
                 (Event){
                     .eventType = EMPTY_HAND,
                     .actorId = bot->playerId,
                 });
-                
+
             if (stackIsEmpty(&game->drawPile)) {
-                    return;
-                }
+                return;
+            }
 
             drawCard(game, &game->players[bot->playerId]);
         }
-        
+
         int targetId = 0;
         values requestedValue = botPlayer->hand[0].value;
         bool foundCertainCard = false;
@@ -205,6 +205,39 @@ void doTurn(BotState *bot, GameState *game) {
                         foundCertainCard = true;
                         break;
                     }
+                }
+            }
+
+            if (!foundCertainCard) {
+
+                if (bot->fallbackMemory.fallbackTargetId == botPlayer->playerNum) {
+                    bot->fallbackMemory.fallbackTargetId++;
+                }
+
+                if (bot->fallbackMemory.fallbackTargetId >= game->playerCount) {
+                    bot->fallbackMemory.fallbackTargetId = 0;
+                }
+
+                if (bot->fallbackMemory.fallBackCardIndex >= botPlayer->handSize) {
+                    bot->fallbackMemory.fallBackCardIndex = 0;
+                }
+
+                requestedValue = botPlayer->hand[bot->fallbackMemory.fallBackCardIndex].value;
+                targetId = bot->fallbackMemory.fallbackTargetId;
+                bot->fallbackMemory.fallbackTargetId++;
+
+                if (bot->fallbackMemory.fallbackTargetId == botPlayer->playerNum) {
+                    bot->fallbackMemory.fallbackTargetId++;
+                }
+
+                if (bot->fallbackMemory.fallbackTargetId >= game->playerCount) {
+                    bot->fallbackMemory.fallbackTargetId = 0;
+
+                    if (bot->fallbackMemory.fallbackTargetId == botPlayer->playerNum) {
+                        bot->fallbackMemory.fallbackTargetId++;
+                    }
+
+                    bot->fallbackMemory.fallBackCardIndex++;
                 }
             }
 
