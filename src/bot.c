@@ -209,15 +209,8 @@ void doTurn(BotState *bot, GameState *game) {
             }
 
             if (!foundCertainCard) {
-
-                if (bot->fallbackMemory.fallbackTargetId == botPlayer->playerNum) {
-                    bot->fallbackMemory.fallbackTargetId++;
-                }
-
-                if (bot->fallbackMemory.fallbackTargetId >= game->playerCount) {
-                    bot->fallbackMemory.fallbackTargetId = 0;
-                }
-
+                
+                //reset card indexs to 0 when bounds is reached
                 if (bot->fallbackMemory.fallBackCardIndex >= botPlayer->handSize) {
                     bot->fallbackMemory.fallBackCardIndex = 0;
                 }
@@ -226,10 +219,12 @@ void doTurn(BotState *bot, GameState *game) {
                 targetId = bot->fallbackMemory.fallbackTargetId;
                 bot->fallbackMemory.fallbackTargetId++;
 
+                //skip yourself
                 if (bot->fallbackMemory.fallbackTargetId == botPlayer->playerNum) {
                     bot->fallbackMemory.fallbackTargetId++;
                 }
 
+                //reset target to 0 when bounds is reached
                 if (bot->fallbackMemory.fallbackTargetId >= game->playerCount) {
                     bot->fallbackMemory.fallbackTargetId = 0;
 
