@@ -209,22 +209,33 @@ void doTurn(BotState *bot, GameState *game) {
             }
 
             if (!foundCertainCard) {
-                
-                //reset card indexs to 0 when bounds is reached
+
+                // first skip yourself incase of init
+                if (bot->fallbackMemory.fallbackTargetId == botPlayer->playerNum) {
+                    bot->fallbackMemory.fallbackTargetId++;
+                }
+
+                // reset card indexs to 0 when bounds is reached
                 if (bot->fallbackMemory.fallBackCardIndex >= botPlayer->handSize) {
                     bot->fallbackMemory.fallBackCardIndex = 0;
+                }
+
+                // dont ask the same thing twice if no certain cards exist
+                if (botPlayer->hand[bot->fallbackMemory.fallBackCardIndex].value ==
+                    game->stream.events[game->stream.size - 1].value) {
+                    bot->fallbackMemory.fallBackCardIndex++;
                 }
 
                 requestedValue = botPlayer->hand[bot->fallbackMemory.fallBackCardIndex].value;
                 targetId = bot->fallbackMemory.fallbackTargetId;
                 bot->fallbackMemory.fallbackTargetId++;
 
-                //skip yourself
+                // skip yourself
                 if (bot->fallbackMemory.fallbackTargetId == botPlayer->playerNum) {
                     bot->fallbackMemory.fallbackTargetId++;
                 }
 
-                //reset target to 0 when bounds is reached
+                // reset target to 0 when bounds is reached
                 if (bot->fallbackMemory.fallbackTargetId >= game->playerCount) {
                     bot->fallbackMemory.fallbackTargetId = 0;
 
