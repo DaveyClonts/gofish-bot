@@ -11,7 +11,7 @@
 // i.e. tui_doSomething()
 
 void tui_clearScreen() {
-    printf("\e[1;1H\e[2J"); // black magic
+    printf("\x1b[1;1H\x1b[2J"); // black magic
     fflush(stdout);
 }
 

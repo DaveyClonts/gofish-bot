@@ -1,6 +1,26 @@
-# Stats
+# GOFISH
 
-Chat generated script to track line count of codebase
+A program that you can play Go Fish against.
+
+Its purpose was to help me learn how to program in C and gain experience managing and finishing a project. This project definitely got messier as it got bigger.
+
+I wanted to avoid relying on AI tools and tried to build every line of code with the intent of maintaining a deep understanding. In some cases, I succeeded, but that definitely does not mean I think this codebase is particularly "good" or clean. I'd like to come back and refactor it.
+
+## Issues
+
+**As of 8/20/2026**
+
+**Bot Logic:**
+I feel that the bot logic is improper and needs work. It's definitely the part I thought about the least as I hurried to finish the project. There was a lot of temptation to just use AI without thinking it through.
+
+**Naming Conventions:**
+I'd like to go through and choose better naming conventions for my code. Right now, I don't like all the naming conventions I went with because I feel like they are inconsistent.
+
+**Game Architecture:**
+I think that the game should be organized as a big state machine rather than what it is now. I'm also not sure about the way I handled the event stream and event log. I'd like to look further into that.
+
+**Unsafe Code:**
+I have had this program crash on other machines. I need to go through and clean up potential issues and try to understand why they are bad practices.
 
 ## Project Size
 
@@ -36,7 +56,3 @@ Generated with `make stats`.
 | `src/tui.h` | 19 |
 | `makefile` | 56 |
 <!-- CODEBASE-STATS:END -->
-
-500 lines started to get a little nervy i was doing things the ugly way
-
-by line 600 - 700 i feel like there will def be needed refactors. not cofident this codebase is the cleanest solution...
