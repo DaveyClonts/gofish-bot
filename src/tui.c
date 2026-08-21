@@ -36,7 +36,7 @@ void tui_startScreen() {
 
 void tui_winScreen(GameState *game) {
     printf("\nGame Won!\n");
-    printf("Winner: player %d", game->winCondition.winnerId);
+    printf("\nWinner: player %d", game->winCondition.winnerId);
 }
 
 static void printWonBookValues(GameState *game, int playerId) {
