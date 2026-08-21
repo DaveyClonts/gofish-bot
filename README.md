@@ -12,13 +12,13 @@ Generated with `make stats`.
 | Metric | Count |
 | --- | ---: |
 | C source/header files | 17 |
-| C source/header lines | 1399 |
-| Lines including makefile | 1455 |
+| C source/header lines | 1457 |
+| Lines including makefile | 1513 |
 
 | File | Lines |
 | --- | ---: |
-| `src/bot.c` | 203 |
-| `src/bot.h` | 41 |
+| `src/bot.c` | 255 |
+| `src/bot.h` | 47 |
 | `src/deck.c` | 161 |
 | `src/deck.h` | 47 |
 | `src/event_log.c` | 65 |
