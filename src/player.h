@@ -7,20 +7,18 @@
 
 typedef struct {
     int playerNum;
-    card *hand;
+    Card *hand;
     int handSize;
     int capacity;
     bool isUser;
-} player;
+} Player;
 
-void player_initPlayer(player *player, int playerId);
+void player_initPlayer(Player *player, int playerId);
 
-void player_checkHandCapicity(player *player);
+void player_checkHandCapicity(Player *player);
 
-void player_organizeHand(player *player);
+void player_organizeHand(Player *player);
 
-void player_giveCardToPlayer(player *giver, player *reciever, int cardIndex);
-
-bool player_checkHandForCard(player *target, player *asker, values targetedValue);
+void player_giveCardToPlayer(Player *giver, Player *reciever, int cardIndex);
 
 #endif

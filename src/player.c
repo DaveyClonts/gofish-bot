@@ -2,11 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-void player_initPlayer(player *player, int playerId) {
+void player_initPlayer(Player *player, int playerId) {
     player->playerNum = playerId;
     player->handSize = 0;
     player->capacity = G_STARTING_HAND_SIZE;
-    player->hand = malloc(player->capacity * sizeof(card));
+    player->hand = malloc(player->capacity * sizeof(Card));
 
     if (player->hand == NULL) {
         fprintf(stderr, "Error: memory allocation failed");
@@ -14,10 +14,10 @@ void player_initPlayer(player *player, int playerId) {
     }
 }
 
-void player_checkHandCapicity(player *player) {
+void player_checkHandCapicity(Player *player) {
     if (player->handSize >= player->capacity) {
         player->capacity *= 2;
-        card *reallocHand = realloc(player->hand, player->capacity * sizeof(card));
+        Card *reallocHand = realloc(player->hand, player->capacity * sizeof(Card));
 
         if (reallocHand == NULL) {
             fprintf(stderr, "Error: hand realloc failed");
@@ -28,9 +28,9 @@ void player_checkHandCapicity(player *player) {
     }
 }
 
-void player_organizeHand(player *player) {
+void player_organizeHand(Player *player) {
     for (int i = 1; i < player->handSize; i++) {
-        card current = player->hand[i];
+        Card current = player->hand[i];
         int j = i;
 
         while (j > 0 && player->hand[j - 1].value < current.value) {
@@ -42,7 +42,7 @@ void player_organizeHand(player *player) {
     }
 }
 
-void player_giveCardToPlayer(player *giver, player *reciever, int cardIndex) {
+void player_giveCardToPlayer(Player *giver, Player *reciever, int cardIndex) {
     if (giver->handSize <= 0) {
         fprintf(stderr, "Error: giver's hand is empty");
         exit(EXIT_FAILURE);
@@ -54,7 +54,7 @@ void player_giveCardToPlayer(player *giver, player *reciever, int cardIndex) {
     }
 
     // shifts cards left and reduces handSize
-    card passingCard = giver->hand[cardIndex];
+    Card passingCard = giver->hand[cardIndex];
     for (int i = cardIndex; i < giver->handSize - 1; i++) {
         giver->hand[i] = giver->hand[i + 1];
     }
@@ -63,17 +63,4 @@ void player_giveCardToPlayer(player *giver, player *reciever, int cardIndex) {
     player_checkHandCapicity(reciever);
     reciever->hand[reciever->handSize] = passingCard;
     reciever->handSize++;
-}
-
-bool player_checkHandForCard(player *target, player *asker, values targetedValue) {
-    bool found = false;
-
-    for (int i = target->handSize - 1; i >= 0; i--) {
-        if (target->hand[i].value == targetedValue) {
-            player_giveCardToPlayer(target, asker, i);
-            found = true;
-        }
-    }
-
-    return found;
 }

@@ -1,16 +1,16 @@
 #include "game.h"
 #include "deck.h"
+#include "event_stream.h"
 #include "player.h"
 #include "stack.h"
 #include "tui.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 
-game_state g_game;
+GameState g_game;
 
-static void deckToStack(game_state *game, card deck[]) {
+static void deckToStack(GameState *game, Card deck[]) {
     stackInit(&game->drawPile);
 
     for (int i = 0; i < DECK_SIZE; i++) {
@@ -18,23 +18,39 @@ static void deckToStack(game_state *game, card deck[]) {
     }
 }
 
-static card drawCard(game_state *game, player *player) {
-
+Card drawCard(GameState *game, Player *player) {
     player_checkHandCapicity(player);
 
-    card drawnCard;
+    Card drawnCard;
     if (stackPop(&game->drawPile, &player->hand[player->handSize])) {
         drawnCard = player->hand[player->handSize];
         player->handSize++;
+
+        if (player->isUser) {
+            publishEvent(&g_game.stream,
+                (Event){
+                    .eventType = CARD_DRAWN,
+                    .actorId = player->playerNum,
+                    .value = drawnCard.value,
+                });
+        } else {
+            publishEvent(&g_game.stream,
+                (Event){
+                    .eventType = CARD_DRAWN,
+                    .actorId = player->playerNum,
+                    .value = drawnCard.value,
+                    .hideValue = true,
+                });
+        }
     }
 
     return drawnCard;
 }
 
-static void giveCardToBook(game_state *game, book *book, int giverId, int cardIndex) {
-    player *giver = &game->players[giverId];
+static void giveCardToBook(GameState *game, Book *book, int giverId, int cardIndex) {
+    Player *giver = &game->players[giverId];
 
-    card passingCard = giver->hand[cardIndex];
+    Card passingCard = giver->hand[cardIndex];
 
     for (int i = cardIndex; i < giver->handSize - 1; i++) {
         giver->hand[i] = giver->hand[i + 1];
@@ -45,8 +61,8 @@ static void giveCardToBook(game_state *game, book *book, int giverId, int cardIn
     book->bookSize++;
 }
 
-static void transferBookCards(game_state *game, player *player, values bookValue) {
-    book newBook;
+static void transferBookCards(GameState *game, Player *player, values bookValue) {
+    Book newBook;
     newBook.bookSize = 0;
     newBook.ownerId = player->playerNum;
     newBook.bookValue = bookValue;
@@ -65,7 +81,7 @@ static void transferBookCards(game_state *game, player *player, values bookValue
     game->sizeOfBooks++;
 }
 
-static void checkHandForBook(game_state *game, player *player) {
+static void checkHandForBook(GameState *game, Player *player) {
 
     int possibleValues[13] = {0};
 
@@ -73,20 +89,27 @@ static void checkHandForBook(game_state *game, player *player) {
         possibleValues[player->hand[i].value]++;
 
         if (possibleValues[player->hand[i].value] == 4) {
-            strcpy(game->eventBuffer, "Book found!\n");
-            transferBookCards(game, player, player->hand[i].value);
+            values bookValue = player->hand[i].value;
+            publishEvent(&g_game.stream,
+                (Event){
+                    .eventType = BOOK_FOUND,
+                    .actorId = player->playerNum,
+                    .value = bookValue,
+                });
+
+            transferBookCards(game, player, bookValue);
             return;
         }
     }
 }
 
-static void checkPlayersForBook(game_state *game) {
+void checkPlayersForBook(GameState *game) {
     for (int i = 0; i < game->playerCount; i++) {
         checkHandForBook(game, &game->players[i]);
     }
 }
 
-static bool checkForWin(game_state *game) {
+bool checkForWin(GameState *game) {
     int bookCount[game->playerCount];
     for (int i = 0; i < game->playerCount; i++) {
         bookCount[i] = 0;
@@ -106,22 +129,31 @@ static bool checkForWin(game_state *game) {
         if (bookCount[i] > 6) {
             game->winCondition.hasWon = true;
             game->winCondition.winnerId = i;
+
+            publishEvent(&g_game.stream,
+                (Event){
+                    .eventType = GAME_WON,
+                    .actorId = game->players[i].playerNum,
+                });
         }
     }
 
     return game->winCondition.hasWon;
 }
 
-static void initPlayers(game_state *game) {
+static void initPlayers(GameState *game) {
+    game->players[0].isUser = true; // forced for now
 
     for (int i = 0; i < game->playerCount; i++) {
         player_initPlayer(&game->players[i], i);
-    }
 
-    game->players[0].isUser = true; // forced for now
+        if (game->players[i].isUser == false) {
+            initBot(&game->botManager, game->players[i].playerNum);
+        }
+    }
 }
 
-static values takeInput(player *player) {
+static values takeInput(Player *player) {
     char buffer[4];
     if (!tui_askForCard(player, buffer, sizeof(buffer))) {
         printf("Exited, ending game\n");
@@ -131,22 +163,110 @@ static values takeInput(player *player) {
     return inputedValue;
 }
 
-static values emptyHand(game_state *game, player *drawingPlayer) {
-    card card;
+// handles card transfer as well
+bool checkHandForCard(Player *actor, Player *target, values targetedValue) {
+    bool gotCard = false;
+    for (int i = target->handSize - 1; i >= 0; i--) {
+        if (target->hand[i].value == targetedValue) {
+            publishEvent(&g_game.stream,
+                (Event){.eventType = CARD_TRANSFERRED,
+                    .actorId = actor->playerNum,
+                    .value = targetedValue,
+                    .targetId = target->playerNum});
+            player_giveCardToPlayer(target, actor, i);
+            gotCard = true;
+        }
+    }
+
+    return gotCard;
+}
+
+static values emptyHand(GameState *game, Player *drawingPlayer) {
+    publishEvent(&g_game.stream,
+        (Event){
+            .eventType = EMPTY_HAND,
+            .actorId = drawingPlayer->playerNum,
+        });
+
+    Card card;
     card = drawCard(game, drawingPlayer);
     return card.value;
+}
+
+static void requestCard(GameState *game, Player *actor, Player *target) {
+
+    // ASK FOR CARD
+    values inputedValue;
+    if (actor->handSize == 0) {
+        inputedValue = emptyHand(game, actor);
+    } else {
+        inputedValue = takeInput(actor);
+        publishEvent(&g_game.stream,
+            (Event){
+                .eventType = CARD_REQUESTED,
+                .value = inputedValue,
+                .actorId = actor->playerNum,
+            });
+    }
+
+    // CHECK HAND FOR CARD
+    bool gotCard = false;
+    if (checkHandForCard(actor, target, inputedValue)) {
+        gotCard = true;
+    }
+
+    while (gotCard) {
+        checkPlayersForBook(game);
+        if (checkForWin(game)) {
+            tui_winScreen(game);
+            return;
+        }
+        tui_displayTurn(game);
+
+        values nextValue = takeInput(actor);
+        publishEvent(&game->stream,
+            (Event){
+                .eventType = CARD_REQUESTED,
+                .actorId = actor->playerNum,
+                .value = nextValue,
+            });
+        if (checkHandForCard(actor, target, nextValue)) {
+            gotCard = true;
+        } else {
+            gotCard = false;
+        }
+    }
+
+    // GO FISH
+    publishEvent(&g_game.stream,
+        (Event){
+            .eventType = GO_FISH,
+        });
+
+    if (!stackIsEmpty(&game->drawPile)) {
+        drawCard(game, actor);
+        checkPlayersForBook(game);
+        if (checkForWin(game)) {
+            tui_winScreen(game);
+            return;
+        }
+    }
+
+    tui_displayTurn(game);
+    tui_waitForKey();
 }
 
 void gameInit() {
     g_game.sizeOfBooks = 0;
     g_game.winCondition.hasWon = false;
     g_game.playerCount = 2;
-    g_game.eventBuffer[0] = '\0';
+    initBotManager(&g_game.botManager);
 
     shuffleDeck(g_deck);
     deckToStack(&g_game, g_deck);
 
     initPlayers(&g_game);
+    eventStreamInit(&g_game.stream);
 
     for (int i = 0; i < G_STARTING_HAND_SIZE; i++) {
         drawCard(&g_game, &g_game.players[0]);
@@ -154,75 +274,41 @@ void gameInit() {
     }
 }
 
-static void gameplayLoop(game_state *game) {
+static void gameplayLoop(GameState *game) {
     while (!game->winCondition.hasWon) {
         for (int playerIndex = 0; playerIndex < game->playerCount; playerIndex++) {
-            checkPlayersForBook(game);
-            tui_displayTurn(game);
-            printf("Player %d's turn\n", playerIndex + 1);
+            publishEvent(&g_game.stream,
+                (Event){
+                    .eventType = TURN_STARTED,
+                    .actorId = game->players[playerIndex].playerNum,
+                });
 
-            bool gotCard = false;
-
-            // TEMPORARY SOLUTION FOR FINDING OTHER PLAYER FOR HAND CHECKS
-            // NEEDS TO SCALE WITH MULTIPLE PLAYERS
-            int otherPlayerId;
-            if (playerIndex == 0) {
-                otherPlayerId = 1;
-            } else {
-                otherPlayerId = 0;
-            }
-
-            // ASK FOR CARD BLOCK
-            values inputedValue;
-            if (game->players[playerIndex].handSize == 0) {
-                strcpy(game->eventBuffer, "Empty hand, drawing and requesting drawn card");
-                inputedValue = emptyHand(game, &game->players[playerIndex]);
-            } else {
-                inputedValue = takeInput(&game->players[playerIndex]);
-            }
-
-            // CHECK HAND BLOCK
-            // check if card/cards is in targets hand, if it is transfer cards
-            if (player_checkHandForCard(&game->players[otherPlayerId], &game->players[playerIndex],
-                                        inputedValue)) {
-                gotCard = true;
-                strcpy(game->eventBuffer, "Card found!\n");
-            }
-
-            while (gotCard) {
+            if (game->players[playerIndex].isUser) {
                 checkPlayersForBook(game);
-                if (checkForWin(game)) {
-                    tui_winScreen(game);
-                    return;
-                }
                 tui_displayTurn(game);
 
-                values inputedValue = takeInput(&game->players[playerIndex]);
-
-                if (player_checkHandForCard(&game->players[otherPlayerId],
-                                            &game->players[playerIndex], inputedValue)) {
-                    gotCard = true;
-                    strcpy(game->eventBuffer, "Card found!\n");
+                // TEMPORARY SOLUTION FOR FINDING OTHER PLAYER FOR HAND CHECKS
+                // NEEDS TO SCALE WITH MULTIPLE PLAYERS
+                int otherPlayerId;
+                if (playerIndex == 0) {
+                    otherPlayerId = 1;
                 } else {
-                    gotCard = false;
+                    otherPlayerId = 0;
                 }
-            }
 
-            // DRAW CARD BLOCK
-            if (!stackIsEmpty(&game->drawPile)) {
-                drawCard(game, &game->players[playerIndex]);
-                strcpy(game->eventBuffer, "Card drawn\n");
-                checkPlayersForBook(game);
-                if (checkForWin(game)) {
-                    tui_winScreen(game);
-                    return;
+                requestCard(&g_game, &game->players[playerIndex], &game->players[otherPlayerId]);
+            } else {
+                BotState *bot = getBot(&game->botManager, game->players[playerIndex].playerNum);
+                if (bot == NULL) {
+                    fprintf(stderr,
+                        "Error: no bot state for player %d\n",
+                        game->players[playerIndex].playerNum);
+                    exit(EXIT_FAILURE);
                 }
+                doTurn(bot, game);
             }
         }
     }
-
-    printf("\nGame Won!\n");
-    printf("Winner: player %d\n", game->winCondition.winnerId);
 }
 
 void startGame() {

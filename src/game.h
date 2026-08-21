@@ -1,33 +1,44 @@
 #ifndef GAME_H
 #define GAME_H
+#include "bot.h"
 #include "deck.h"
+#include "event_stream.h"
 #include "player.h"
 #include "stack.h"
 #include <stdbool.h>
 #include <stddef.h>
 
 typedef struct {
-    card cardsInBook[4];
+    Card cardsInBook[4];
     int bookSize;
     bool completed;
     int ownerId;
     values bookValue;
-} book;
+} Book;
 
 typedef struct {
     bool hasWon;
     int winnerId;
-} win;
+} Win;
 
-typedef struct {
-    win winCondition;
-    stack_card drawPile;
-    player players[6];
+typedef struct GameState {
+    Win winCondition;
+    StackCard drawPile;
+    Player players[6];
     int playerCount;
-    book books[13];
+    BotManager botManager;
+    Book books[13];
     int sizeOfBooks;
-    char eventBuffer[64];
-} game_state;
+    EventStream stream;
+} GameState;
+
+Card drawCard(GameState *game, Player *player);
+
+bool checkHandForCard(Player *actor, Player *target, values targetedValue);
+
+void checkPlayersForBook(GameState *game);
+
+bool checkForWin(GameState *game);
 
 void gameInit();
 

@@ -1,5 +1,6 @@
 #include "tui.h"
 #include "deck.h"
+#include "event_stream.h"
 #include "game.h"
 #include "player.h"
 #include <ctype.h>
@@ -33,12 +34,12 @@ void tui_startScreen() {
     getchar();
 }
 
-void tui_winScreen(game_state *game) {
+void tui_winScreen(GameState *game) {
     printf("\nGame Won!\n");
-    printf("Winner: player %d", game->winCondition.winnerId);
+    printf("\nWinner: player %d", game->winCondition.winnerId);
 }
 
-static void printWonBookValues(game_state *game, int playerId) {
+static void printWonBookValues(GameState *game, int playerId) {
     for (int i = 0; i < game->sizeOfBooks; i++) {
         if (game->books[i].ownerId == playerId) {
             printf(" (%s) ", valueToShorthand(game->books[i].bookValue));
@@ -47,7 +48,7 @@ static void printWonBookValues(game_state *game, int playerId) {
     printf("\n");
 }
 
-static void printCardsInHand(player *player, bool hidden) {
+static void printCardsInHand(Player *player, bool hidden) {
     for (int i = 0; i < player->handSize; i++) {
         if (hidden) {
             printf(" ## ");
@@ -59,7 +60,7 @@ static void printCardsInHand(player *player, bool hidden) {
     }
 }
 
-static void displayBooks(game_state *game) {
+static void displayBooks(GameState *game) {
 
     printf("Game ends when all 13 books are won\n");
     printf("Number of books won: %d\n", game->sizeOfBooks);
@@ -70,7 +71,7 @@ static void displayBooks(game_state *game) {
     }
 }
 
-static void displayHands(game_state *game) {
+static void displayHands(GameState *game) {
     // this is just the current way of handling this.
     // TODO: will need to make this scale with multiple players
 
@@ -81,7 +82,7 @@ static void displayHands(game_state *game) {
             usersId = game->players[i].playerNum;
         } else {
             printf("Opponent's Hand:");
-            printCardsInHand(&game->players[i], false);
+            printCardsInHand(&game->players[i], true);
         }
     }
 
@@ -96,12 +97,32 @@ static void displayHands(game_state *game) {
     tui_newline(1);
 }
 
-static void displayLastEvent(game_state *game) {
-    printf("%s", game->eventBuffer);
-    game->eventBuffer[0] = '\0';
+static void displayLastEvent(GameState *game) {
+    EventLog log = game->stream.eventLog;
+
+    // realized my solution is crappy but i dont want to refactor
+    // proper solution is to have each event hold a string
+    //*facepalm*
+    for (int i = (int)log.length; i > 0; i--) {
+        if (strstr(log.log[i - 1], "turn") != NULL) {
+            for (size_t j = i - 1; j < log.length; j++) {
+                printf("%s", log.log[j]);
+            }
+            break;
+        }
+    }
 }
 
-void tui_displayTurn(game_state *game) {
+void tui_waitForKey() {
+    printf("\nPress Enter to continue...");
+    fflush(stdout); // flush clears in the buffer so it can take input
+
+    int character;
+    while ((character = getchar()) != '\n' && character != EOF)
+        ;
+}
+
+void tui_displayTurn(GameState *game) {
     tui_clearScreen();
     displayBooks(game);
     tui_newline(3);
@@ -112,7 +133,7 @@ void tui_displayTurn(game_state *game) {
     displayLastEvent(game);
 }
 
-static bool checkForValidInput(player *player, const char *buffer) {
+static bool checkForValidInput(Player *player, const char *buffer) {
     bool validInput = false;
 
     if (player->handSize == 0) {
@@ -129,7 +150,7 @@ static bool checkForValidInput(player *player, const char *buffer) {
     return validInput;
 }
 
-static bool isValidValue(player *player, const char *buffer) {
+static bool isValidValue(Player *player, const char *buffer) {
     size_t length = strlen(buffer);
 
     if (!checkForValidInput(player, buffer)) {
@@ -148,7 +169,7 @@ static bool isValidValue(player *player, const char *buffer) {
     return false;
 }
 
-bool tui_askForCard(player *player, char *buffer, int bufferSize) {
+bool tui_askForCard(Player *player, char *buffer, int bufferSize) {
     while (true) {
         printf("Request a card: ");
 
